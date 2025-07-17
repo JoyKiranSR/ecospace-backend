@@ -14,7 +14,8 @@
   "license": "ISC",
   "description": "A monolith service related to ecology specifically targeting Gardening and Agriculture.",
   "dependencies": {
-    "express": "^5.1.0"
+    "express": "^5.1.0",
+    "express-validator": "^7.2.1"
   },
   "devDependencies": {
     "nodemon": "^3.1.10"

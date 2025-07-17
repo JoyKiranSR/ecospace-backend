@@ -16,9 +16,9 @@ const PLANT_PURPOSE = Object.freeze({
 const PLANT_GROWTH_HABIT = Object.freeze({
     CLIMBER: "climber",
     CREEPER: "creeper",
+    HERB: "herb",
     HERBACEOUS: "herbaceous",
     GRASS: "grass",
-    HERB: "herb",
     SHRUB: "shrub",
     TREE: "tree",
 });

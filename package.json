@@ -1,0 +1,14 @@
+{
+  "name": "ecospace",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "ecospace"
+  ],
+  "author": "Joy Kiran S R",
+  "license": "ISC",
+  "description": "A monolith service related to ecology specifically targeting Gardening and Agriculture."
+}

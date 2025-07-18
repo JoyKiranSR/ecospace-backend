@@ -20,8 +20,14 @@ routes.post("/", validator.create(), validator.errorHandler, (req, res) => {
     plantDetails = { name, category, growthCycle, growthHabit, idealSeason, purpose };
 
     // Add optional values
-    plantDetails = { ...plantDetails, commonNames, commonPests, compatiblePlants, growthStages, recommendedFertilizers,
-        regionCompatibility, scientificName, tags };
+    if (commonNames) plantDetails.commonNames = commonNames;
+    if (commonPests) plantDetails.commonPests = commonPests;
+    if (compatiblePlants) plantDetails.compatiblePlants = compatiblePlants;
+    if (growthStages) plantDetails.growthStages = growthStages;
+    if (recommendedFertilizers) plantDetails.recommendedFertilizers = recommendedFertilizers;
+    if (regionCompatibility) plantDetails.regionCompatibility = regionCompatibility;
+    if (scientificName) plantDetails.scientificName = scientificName;
+    if (tags) plantDetails.tags = tags;
 
     // Save to DB
     const plant = savePlant(plantDetails);

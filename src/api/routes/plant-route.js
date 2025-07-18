@@ -3,7 +3,7 @@ const { Router } = require("express");
 const { PLANT_CATEGORY, PLANT_GROWTH_CYCLE, PLANT_GROWTH_HABIT, PLANT_PURPOSE } = require("../../constants/plant-constant");
 const { SEASON } = require("../../constants/season-constant");
 const { plantValidator } = require("../middlewares/plant-middleware");
-const { savePlant } = require("../services/plant-service");
+const { getAllPlants, savePlant, getPlantById } = require("../services/plant-service");
 
 const routes = Router();
 const validator = plantValidator();
@@ -26,6 +26,21 @@ routes.post("/", validator.create(), validator.errorHandler, (req, res) => {
     // Save to DB
     const plant = savePlant(plantDetails);
     return res.status(201).send({ data: plant, message: "Created successfully" });
+});
+
+routes.get("/", (_req, res) => {
+    // Fetch all plants from DB
+    const plants = getAllPlants();
+    return res.status(200).json({ data: plants, message: "Retrieved all plants successfully" });
+});
+
+routes.get("/:plantId", (req, res) => {
+    // Get plant id from path params
+    const plantId = req.params.plantId;
+    // Fetch plant details by its id
+    const plant = getPlantById(plantId);
+    const message = plant ? "Retrieved plant details successfully" : "Plant details not found";
+    return res.status(200).json({ data: plant, message });
 });
 
 module.exports = routes;

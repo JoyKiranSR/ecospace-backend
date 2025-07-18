@@ -1,31 +1,34 @@
+// src/api/routes/plant-route.js
+
+/**
+ * @module plant-route
+ * Ecospace Plant Routes
+ * 
+ * @description This module defines the routes for plant-related endpoints in the Ecospace backend.
+ * It includes routes for creating a plant, fetching all plants, and fetching a plant by its ID.
+ * It uses the Express Router and applies validation middleware to ensure that the requests are properly formatted.
+ * 
+ * @requires express
+ * @requires plant-middleware
+ * @requires plant-controller
+ * @requires express-validator
+ * @exports routes
+ */
+
+// Core module imports
 const { Router } = require("express");
-
-const { PLANT_CATEGORY, PLANT_GROWTH_CYCLE, PLANT_GROWTH_HABIT, PLANT_PURPOSE } = require("../../constants/plant-constant");
-const { SEASON } = require("../../constants/season-constant");
+// Custom module imports
 const { plantValidator } = require("../middlewares/plant-middleware");
-const { savePlant } = require("../services/plant-service");
+const { createPlant, fetchAllPlants, fetchPlantById } = require("../controllers/plant-controller");
 
+// Initialize the router and validator
 const routes = Router();
 const validator = plantValidator();
 
-routes.post("/", validator.create(), validator.errorHandler, (req, res) => {
-    let plantDetails = {};
-    if (!req.body) return res.status(400).json({ message: "Required body" });
-    const { category, common_names: commonNames, common_pests: commonPests, compatible_plants: compatiblePlants,
-        growth_cycle: growthCycle, growth_habit: growthHabit, growth_stages: growthStages,
-        ideal_season: idealSeason, name, purpose, recommended_fertilizers: recommendedFertilizers,
-        region_compatibility: regionCompatibility, scientific_name: scientificName, tags } = req.body;
+// Define the plant routes
+routes.post("/", validator.create(), validator.errorHandler, createPlant);
+routes.get("/", fetchAllPlants);
+routes.get("/:plantId", validator.id(), validator.errorHandler, fetchPlantById);
 
-    // Add values to plant object
-    plantDetails = { name, category, growthCycle, growthHabit, idealSeason, purpose };
-
-    // Add optional values
-    plantDetails = { ...plantDetails, commonNames, commonPests, compatiblePlants, growthStages, recommendedFertilizers,
-        regionCompatibility, scientificName, tags };
-
-    // Save to DB
-    const plant = savePlant(plantDetails);
-    return res.status(201).send({ data: plant, message: "Created successfully" });
-});
-
+// Export the routes for use in the main application
 module.exports = routes;

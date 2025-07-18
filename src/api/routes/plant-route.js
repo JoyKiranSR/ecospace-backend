@@ -1,7 +1,5 @@
 const { Router } = require("express");
 
-const { PLANT_CATEGORY, PLANT_GROWTH_CYCLE, PLANT_GROWTH_HABIT, PLANT_PURPOSE } = require("../../constants/plant-constant");
-const { SEASON } = require("../../constants/season-constant");
 const { plantValidator } = require("../middlewares/plant-middleware");
 const { getAllPlants, savePlant, getPlantById } = require("../services/plant-service");
 

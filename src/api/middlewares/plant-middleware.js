@@ -1,4 +1,4 @@
-const { body, validationResult } = require("express-validator");
+const { body, matchedData, param, validationResult } = require("express-validator");
 
 const validateNonEmptyStringArray = field =>
   body(field)
@@ -68,6 +68,18 @@ const createPlantValidator = [
       .trim()
 ];
 
+const idValidator = [
+    /**
+     * Validations: Required path parameter
+     * 
+     * plantId: integer
+     */
+    param("plantId")
+      .exists().withMessage("plantId is required")
+      .isInt({ min: 1 }).withMessage("plantId must be a positive integer")
+      .toInt()
+];
+
 const plantValidator = () => {
     return {
         create: () => createPlantValidator,
@@ -75,8 +87,11 @@ const plantValidator = () => {
             const result = validationResult(req)
             const errors = result.array().map(({ msg, path }) => ({ field: path, message: msg }));
             if (!result.isEmpty()) return res.status(400).json({ message: "Validation error", errors });
+            // Add sanitized query parameters to request object
+            req.sanitizedQuery = matchedData(req, { locations: ["query"] });
             next();
-        }
+        },
+        id: () => idValidator,
     };
 };
 

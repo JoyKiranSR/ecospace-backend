@@ -8,6 +8,6 @@ const validator = plantValidator();
 
 routes.post("/", validator.create(), validator.errorHandler, createPlant);
 routes.get("/", fetchAllPlants);
-routes.get("/:plantId", fetchPlantById);
+routes.get("/:plantId", validator.id(), validator.errorHandler, fetchPlantById);
 
 module.exports = routes;

@@ -38,7 +38,8 @@ const fetchPlantById = (req, res) => {
     // Get plant details by its id
     const plant = getPlantById(plantId);
     const message = plant ? "Retrieved plant details successfully" : "Plant details not found";
-    return res.status(200).json({ data: plant, message });
+    const statusCode = plant ? 200 : 404;
+    return res.status(statusCode).json({ data: plant, message });
 };
 
 module.exports = { createPlant, fetchAllPlants, fetchPlantById };

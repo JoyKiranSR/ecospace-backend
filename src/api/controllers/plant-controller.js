@@ -23,11 +23,13 @@ const { getAllPlants, savePlant, getPlantById } = require("../services/plant-ser
  * 
  * @param {Object} req - The request object containing the plant details in the body.
  * @param {Object} res - The response object used to send the response back to the client.
- * @returns {Object} - Returns a JSON response with the created plant data and a success message.
+ * @return {Object} - Returns a JSON response with the created plant details and a success message if successful,
+ * or an error message with a 500 status code if the creation fails.
  */
-const createPlant = (req, res) => {
+const createPlant = async (req, res) => {
     let plantDetails = {};
     if (!req.body) return res.status(400).json({ message: "Required body" });
+    console.log(req.body)
     // Destructure the plant details from the request body
     const { category, common_names: commonNames, common_pests: commonPests, compatible_plants: compatiblePlants,
         growth_cycle: growthCycle, growth_habit: growthHabit, growth_stages: growthStages,
@@ -48,8 +50,12 @@ const createPlant = (req, res) => {
     if (tags) plantDetails.tags = tags;
 
     // Save to DB
-    const plant = savePlant(plantDetails);
-    return res.status(201).send({ data: plant, message: "Created successfully" });
+    try {
+        const plant = await savePlant(plantDetails);
+        return res.status(201).send({ data: plant, message: "Created successfully" });
+    } catch (error) {
+        return res.status(500).json({ message: error.message });        
+    }
 };
 
 /**
@@ -63,10 +69,14 @@ const createPlant = (req, res) => {
  * @param {Object} res - The response object used to send the response back to the client.
  * @return {Object} - Returns a JSON response with the list of all plants and a success message.
  */
-const fetchAllPlants = (_req, res) => {
+const fetchAllPlants = async (_req, res) => {
     // Get all plants from DB
-    const plants = getAllPlants();
-    return res.status(200).json({ data: plants, message: "Retrieved all plants successfully" });
+    try {
+        const plants = await getAllPlants();
+        return res.status(200).json({ data: plants, message: "Retrieved all plants successfully" });
+    } catch (error) {
+        return res.status(500).json({ message: error.message });        
+    }
 };
 
 /**
@@ -80,14 +90,18 @@ const fetchAllPlants = (_req, res) => {
  * @param {Object} res - The response object used to send the response back to the client.
  * @return {Object} - Returns a JSON response with the plant details or an error message.
  */
-const fetchPlantById = (req, res) => {
+const fetchPlantById = async (req, res) => {
     // Get plant id from path params
     const plantId = req.params.plantId;
     // Get plant details by its id
-    const plant = getPlantById(plantId);
-    const message = plant ? "Retrieved plant details successfully" : "Plant details not found";
-    const statusCode = plant ? 200 : 404;
-    return res.status(statusCode).json({ data: plant, message });
+    try {
+        const plant = await getPlantById(plantId);
+        const message = plant ? "Retrieved plant details successfully" : "Plant details not found";
+        const statusCode = plant ? 200 : 404;
+        return res.status(statusCode).json({ data: plant, message });
+    } catch (error) {
+        return res.status(500).json({ message: error.message });        
+    }
 };
 
 // Export the controller handler functions for use in the routes

@@ -64,7 +64,7 @@ const getPlantById = async (plantId) => {
         const plant = await Plant.findByPk(plantId);
         return plant;
     } catch (error) {
-        console.error(`Error fetching plant with ID ${plantId}:`, error?.message || error);
+        console.error("Error fetching plant with ID: %s", plantId, error?.message || error);
         throw new Error(`Failed to fetch plant with ID ${plantId}`);       
     }
 };

@@ -11,6 +11,9 @@
  * @exports {toArrayOfVals}
  */
 
+// Core module imports
+const _ = require('lodash');
+
 /**
  * @function toArrayOfVals
  * 
@@ -33,4 +36,32 @@ const toArrayOfVals = (obj, isStringify = false) => {
     return arr;
 };
 
-module.exports = { toArrayOfVals };
+/**
+ * @function toSnakeCaseKeys
+ * 
+ * @description Converts the keys of an object to snake_case format.
+ * If the input is an array, it recursively converts each object in the array.
+ * If the input is a Date object, it skips the transformation.
+ * If the input is an object, it converts each key to snake_case using lodash's snakeCase function.
+ * If the input is not an object or array, it returns the input as is.
+ * This function is useful for standardizing object keys in APIs or data processing tasks.
+ * @param {Object|Array} obj - The object or array to convert to snake_case keys.
+ * @returns {Object} - A new object with keys converted to snake_case.
+ */
+function toSnakeCaseKeys(obj) {
+  if (Array.isArray(obj)) {
+    return obj.map(toSnakeCaseKeys);
+  } else if (obj instanceof Date) {
+    return obj; // Skip transformation for Date objects
+  } else if (obj && typeof obj === 'object') {
+    return Object.fromEntries(
+      Object.entries(obj).map(([key, value]) => [
+        _.snakeCase(key),
+        toSnakeCaseKeys(value)
+      ])
+    );
+  }
+  return obj;
+}
+
+module.exports = { toArrayOfVals, toSnakeCaseKeys };

@@ -73,7 +73,7 @@ const createPlant = async (req, res) => {
 const fetchAllPlants = async (req, res) => {
     // Get all plants from DB
     try {
-        let { limit, page, sortBy, sortOrder } = req.query;
+        let { limit, page, sortBy, sortOrder } = req.sanitizedQuery;
         const DEFAULT_LIMIT = 10, MAX_LIMIT = 100, DEFAULT_PAGE = 1 ; // Default pagination values
         const SORT_PARAMS = ["name", "createdAt"], DEFAULT_SORT_BY = "createdAt", DEFAULT_SORT_ORDER = "asc"; // Default sorting values 
         /** 
@@ -88,6 +88,10 @@ const fetchAllPlants = async (req, res) => {
          * This prevents excessive load on the server and ensures reasonable pagination
          * If limit or page is not provided, use default values
          * Default limit is 10 and default page is 1
+         * 
+         * Note: Here validations are just incase you miss express validations to apply as middleware in routes
+         * so that you can still use this controller handler function without any issues, so that the 
+         * below validations comes in handy.
          */
         limit = Math.min(MAX_LIMIT, Math.max(DEFAULT_LIMIT, parseInt(limit, 10) || DEFAULT_LIMIT));
         page = Math.max(DEFAULT_PAGE, parseInt(page, 10) || DEFAULT_PAGE);
@@ -99,6 +103,10 @@ const fetchAllPlants = async (req, res) => {
          * sortBy: Field to sort by (default is createdAt)
          * sortOrder: Order to sort by (default is asc)
          * Ensure sortBy is one of the allowed fields and sortOrder is either asc or desc
+         * 
+         * Note: Here validations are just incase you miss express validations to apply as middleware in routes
+         * so that you can still use this controller handler function without any issues, so that the 
+         * below validations comes in handy.
          */
         if (!sortBy || (sortBy && !SORT_PARAMS.includes(sortBy))) sortBy = DEFAULT_SORT_BY;
         if (!sortOrder || (sortOrder && !["asc", "desc"].includes(String(sortOrder).toLowerCase()))) sortOrder = DEFAULT_SORT_ORDER;

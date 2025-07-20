@@ -65,7 +65,7 @@ const createPlant = async (req, res) => {
  * It fetches all plants and returns them in a JSON response with a success message.
  * If there are no plants, it returns an empty array.
  * 
- * @param {Object} req - The request object containing query parameters for pagination (limit and page).
+ * @param {Object} req - The request object containing query parameters for pagination and sorting. 
  * @param {Object} res - The response object used to send the response back to the client.
  * @return {Object} - Returns a JSON response with the list of plants, pagination metadata, and a success message.
  * If an error occurs, it returns a 500 status code with an error message.
@@ -73,10 +73,12 @@ const createPlant = async (req, res) => {
 const fetchAllPlants = async (req, res) => {
     // Get all plants from DB
     try {
+        let { limit, page, sortBy, sortOrder } = req.query;
         const DEFAULT_LIMIT = 10, MAX_LIMIT = 100, DEFAULT_PAGE = 1 ; // Default pagination values
-        let { limit, page } = req.query;
+        const SORT_PARAMS = ["name", "createdAt"], DEFAULT_SORT_BY = "createdAt", DEFAULT_SORT_ORDER = "asc"; // Default sorting values 
         /** 
          * Validations: Pagination
+         *
          * If limit and page are provided, use them to paginate results else use default values
          * limit: Maximum number of plants to return per page
          * page: Current page number for pagination
@@ -89,8 +91,20 @@ const fetchAllPlants = async (req, res) => {
          */
         limit = Math.min(MAX_LIMIT, Math.max(DEFAULT_LIMIT, parseInt(limit, 10) || DEFAULT_LIMIT));
         page = Math.max(DEFAULT_PAGE, parseInt(page, 10) || DEFAULT_PAGE);
+
+        /**
+         * Validations: Sorting
+         *
+         * If sortBy and sortOrder are provided, use them to sort results else use default values
+         * sortBy: Field to sort by (default is createdAt)
+         * sortOrder: Order to sort by (default is asc)
+         * Ensure sortBy is one of the allowed fields and sortOrder is either asc or desc
+         */
+        if (!sortBy || (sortBy && !SORT_PARAMS.includes(sortBy))) sortBy = DEFAULT_SORT_BY;
+        if (!sortOrder || (sortOrder && !["asc", "desc"].includes(String(sortOrder).toLowerCase()))) sortOrder = DEFAULT_SORT_ORDER;
+
         // Fetch all plants with pagination
-        const result = await getAllPlants({ limit, page });
+        const result = await getAllPlants({ limit, page }, { sortBy, sortOrder });
         return res.status(200).json({ ...result, message: "Retrieved all plants successfully" });
     } catch (error) {
         return res.status(500).json({ message: error.message });        

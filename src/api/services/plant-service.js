@@ -40,14 +40,19 @@ const savePlant = async (plantDetails) => {
  * @param {Object} pagination - An object containing pagination parameters: limit and offset.
  * @param {number} pagination.limit - The maximum number of plants to return.
  * @param {number} pagination.page - The current page number for pagination.
+ * @param {Object} sorting - An object containing sorting parameters: sortBy and sortOrder.
+ * @param {string} sorting.sortBy - The field to sort by (e.g., 'name').
+ * @param {string} sorting.sortOrder - The order of sorting (e.g., 'asc' or 'desc').
  * @returns {Promise<Object>} - An object containing an array of plant objects and pagination metadata.
  * @throws {Error} - Throws an error if the fetch operation fails.
  */
-const getAllPlants = async (pagination) => {
+const getAllPlants = async (pagination, sorting) => {
     try {
         const { limit, page } = pagination;
+        const { sortBy, sortOrder } = sorting;
         const offset = (page - 1) * limit;
-        const { count, rows } = await Plant.findAndCountAll({ limit, offset });
+        // Fetch all plants with pagination and sorting
+        const { count, rows } = await Plant.findAndCountAll({ limit, offset, order: [[sortBy, sortOrder]] });
 
         // Set pagination metadata
         const pageSize = limit;

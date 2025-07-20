@@ -27,7 +27,7 @@ const validator = plantValidator();
 
 // Define the plant routes
 routes.post("/", validator.create(), validator.errorHandler, createPlant);
-routes.get("/", fetchAllPlants);
+routes.get("/", validator.get(), validator.errorHandler, fetchAllPlants);
 routes.get("/:plantId", validator.id(), validator.errorHandler, fetchPlantById);
 
 // Export the routes for use in the main application

@@ -37,13 +37,50 @@ const savePlant = async (plantDetails) => {
  * 
  * @description Fetches all plants from the PostgreSQL database using Sequelize.
  * 
- * @returns {Promise<Array>} - An array of all plant objects.
+ * @param {Object} pagination - An object containing pagination parameters: limit and offset.
+ * @param {number} pagination.limit - The maximum number of plants to return.
+ * @param {number} pagination.page - The current page number for pagination.
+ * @param {Object} sorting - An object containing sorting parameters: sortBy and sortOrder.
+ * @param {string} sorting.sortBy - The field to sort by (e.g., 'name').
+ * @param {string} sorting.sortOrder - The order of sorting (e.g., 'asc' or 'desc').
+ * @param {Object} filters - An object containing filtering parameters.
+ * @param {string} filters.category - The category to filter plants by (optional).
+ * @param {string} filters.growthCycle - The growth cycle to filter plants by (optional).
+ * @param {string} filters.growthHabit - The growth habit to filter plants by (optional).
+ * @param {string} filters.idealSeason - The ideal season to filter plants by (optional).
+ * @param {string} filters.purpose - The purpose to filter plants by (optional).
+ * @returns {Promise<Object>} - An object containing an array of plant objects and pagination metadata.
  * @throws {Error} - Throws an error if the fetch operation fails.
  */
-const getAllPlants = async () => {
+const getAllPlants = async (pagination, sorting, filters) => {
     try {
-        const plants = await Plant.findAll();
-        return plants;
+        const { limit, page } = pagination;
+        const { sortBy, sortOrder } = sorting;
+        // NOTE: Adding filters directly as exact match as they are enums
+        console.debug("Fetching all plants with filters: %j", filters);
+        
+        const offset = (page - 1) * limit;
+        // Fetch all plants with pagination and sorting
+        const { count, rows } = await Plant.findAndCountAll({
+            limit, offset, order: [[sortBy, sortOrder]], where: filters,
+        });
+
+        // Set pagination metadata
+        const pageSize = limit;
+        const totalPages = Math.ceil(count / pageSize);
+        const hasPreviousPage = page > 1;
+        const hasNextPage = page < totalPages;
+        let paginationMetadata = { currentPage: page, hasNextPage, hasPreviousPage, pageSize, totalItems: count, totalPages };
+
+        // Set extra metadata for pagination on special cases
+        const hasExceededPage = page > totalPages; // if the requested page exceeds total pages
+        const maxLimitApplied = limit === 100; // if the limit is set to maximum allowed (100)
+        if (hasExceededPage) paginationMetadata = { ...paginationMetadata, hasExceededPage};
+        if (!hasExceededPage && maxLimitApplied) paginationMetadata = { ...paginationMetadata, maxLimitApplied };
+        console.debug("Fetched %d plants with pagination: %j", rows.length, paginationMetadata);
+        
+        // Return the rows and pagination metadata
+        return { data: rows, pagination: paginationMetadata };
     } catch (error) {
         console.error("Error fetching all plants: ", error?.message || error);
         throw new Error("Failed to fetch plants");        

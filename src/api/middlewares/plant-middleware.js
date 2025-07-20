@@ -12,7 +12,7 @@
  */
 
 // Core module imports
-const { body, matchedData, param, validationResult } = require("express-validator");
+const { body, matchedData, param, query, validationResult } = require("express-validator");
 // Custom module imports
 const { PLANT_CATEGORY, PLANT_GROWTH_CYCLE, PLANT_GROWTH_HABIT, PLANT_PURPOSE, PLANT_GROWTH_STAGE } = require('../../constants/plant-constant');
 const { SEASON } = require('../../constants/season-constant');
@@ -63,12 +63,12 @@ const createPlantValidator = [
      * purpose: string
      * 
      * Allowed values:
-     * category: plant/crop
-     * growth_cycle: annual/biennial/perennial
-     * growth_habit: climber/creeper/herb/herbaceous/grass/shrub/tree
-     * ideal_season: autumn/monsoon/spring/summer/winter
+     * category: PLANT_CATEGORY
+     * growth_cycle: PLANT_GROWTH_CYCLE
+     * growth_habit: PLANT_GROWTH_HABIT
+     * ideal_season: SEASON
      * name: string
-     * purpose: flower/fodder/fruit/herb/medicine/spice/vegetable
+     * purpose: PLANT_PURPOSE
      */
     body("category")
       .trim()
@@ -112,7 +112,7 @@ const createPlantValidator = [
      * common_names: Array of strings
      * common_pests: Array of strings
      * compatible_plants: Array of strings
-     * growth_stages: Array of strings
+     * growth_stages: Array of PLANT_GROWTH_STAGE
      * recommended_fertilizers: Array of strings
      * region_compatibility: Array of strings
      * scientific_name: string
@@ -157,6 +157,82 @@ const idValidator = [
       .trim()
 ];
 
+const getPlantsValidator = [
+    /**
+     * Validations: query parameters
+     *
+     * Pagination:
+     * page: integer (default: 1)
+     * limit: integer (default: 10, max: 100)
+     *
+     * Sorting:
+     * sortBy: string (default: 'name')
+     * sortOrder: string (default: 'asc')
+     *
+     * Filtering:
+     * category: string (optional)
+     * growth_cycle: string (optional)
+     * growth_habit: string (optional)
+     * growth_stages: string (optional)
+     * ideal_season: string (optional)
+     * purpose: string (optional)
+     *
+     * Allowed values for filtering:
+     * category: PLANT_CATEGORY
+     * growth_cycle: PLANT_GROWTH_CYCLE
+     * growth_habit: PLANT_GROWTH_HABIT
+     * growth_stages: Array of PLANT_GROWTH_STAGE
+     * ideal_season: SEASON
+     * purpose: PLANT_PURPOSE
+     */
+    query("page")
+      .optional()
+      .isInt({ gt: 0 }).withMessage("page must be a positive integer").bail()
+      .toInt(),
+  
+    query("limit")
+      .optional()
+      .isInt({ gt: 0 }).withMessage("limit must be a positive integer").bail()
+      .toInt(),
+  
+    query("sort_by")
+      .optional()
+      .isString().withMessage("sort_by must be a string").bail()
+      .isIn(["name", "createdAt"]).withMessage("sort_by must be either 'name' or 'createdAt'")
+      .trim(),
+  
+    query("sort_order")
+      .optional()
+      .isString().withMessage("sort_order must be a string").bail()
+      .trim().toLowerCase()
+      .isIn(["asc", "desc"]).withMessage("sort_order must be either 'asc' or 'desc'"),  
+
+    query("category")
+      .optional()
+      .isString().withMessage("category must be a string").bail()
+      .isIn(toArrayOfVals(PLANT_CATEGORY)).withMessage(`category must be one of ${toArrayOfVals(PLANT_CATEGORY, true)}`),
+    
+    query("growth_cycle")
+      .optional()
+      .isString().withMessage("growth_cycle must be a string").bail()
+      .isIn(toArrayOfVals(PLANT_GROWTH_CYCLE)).withMessage(`growth_cycle must be one of ${toArrayOfVals(PLANT_GROWTH_CYCLE, true)}`),
+
+    query("growth_habit")
+      .optional()
+      .isString().withMessage("growth_habit must be a string").bail()
+      .isIn(toArrayOfVals(PLANT_GROWTH_HABIT)).withMessage(`growth_habit must be one of ${toArrayOfVals(PLANT_GROWTH_HABIT, true)}`),
+    
+    query("ideal_season")
+      .optional()
+      .isString().withMessage("ideal_season must be a string").bail()
+      .isIn(toArrayOfVals(SEASON)).withMessage(`ideal_season must be one of ${toArrayOfVals(SEASON, true)}`),
+
+    query("purpose")
+      .optional()
+      .isString().withMessage("purpose must be a string").bail()
+      .isIn(toArrayOfVals(PLANT_PURPOSE)).withMessage(`purpose must be one of ${toArrayOfVals(PLANT_PURPOSE, true)}`),
+];
+
 /**
  * @function plantValidator
  * 
@@ -195,9 +271,13 @@ const plantValidator = () => {
             const errors = result.array().map(({ msg, path }) => ({ field: path, message: msg }));
             if (!result.isEmpty()) return res.status(400).json({ message: "Validation error", errors });
             // Add sanitized query parameters to request object
+            // NOTE: From express 5, req.query is immutable
             req.sanitizedQuery = matchedData(req, { locations: ["query"] });
+            console.debug(req.sanitizedQuery);
             next();
         },
+
+        get: () => getPlantsValidator,
         /**
          * @function id
          * 

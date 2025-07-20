@@ -65,15 +65,33 @@ const createPlant = async (req, res) => {
  * It fetches all plants and returns them in a JSON response with a success message.
  * If there are no plants, it returns an empty array.
  * 
- * @param {Object} _req - The request object (not used in this function).
+ * @param {Object} req - The request object containing query parameters for pagination (limit and page).
  * @param {Object} res - The response object used to send the response back to the client.
- * @return {Object} - Returns a JSON response with the list of all plants and a success message.
+ * @return {Object} - Returns a JSON response with the list of plants, pagination metadata, and a success message.
+ * If an error occurs, it returns a 500 status code with an error message.
  */
-const fetchAllPlants = async (_req, res) => {
+const fetchAllPlants = async (req, res) => {
     // Get all plants from DB
     try {
-        const plants = await getAllPlants();
-        return res.status(200).json({ data: plants, message: "Retrieved all plants successfully" });
+        const DEFAULT_LIMIT = 10, MAX_LIMIT = 100, DEFAULT_PAGE = 1 ; // Default pagination values
+        let { limit, page } = req.query;
+        /** 
+         * Validations: Pagination
+         * If limit and page are provided, use them to paginate results else use default values
+         * limit: Maximum number of plants to return per page
+         * page: Current page number for pagination
+         * 
+         * Ensure limit is at least 1 and page is at least 1
+         * Also ensure max limit is 1000 and max page is 1000
+         * This prevents excessive load on the server and ensures reasonable pagination
+         * If limit or page is not provided, use default values
+         * Default limit is 10 and default page is 1
+         */
+        limit = Math.min(MAX_LIMIT, Math.max(DEFAULT_LIMIT, parseInt(limit, 10) || DEFAULT_LIMIT));
+        page = Math.max(DEFAULT_PAGE, parseInt(page, 10) || DEFAULT_PAGE);
+        // Fetch all plants with pagination
+        const result = await getAllPlants({ limit, page });
+        return res.status(200).json({ ...result, message: "Retrieved all plants successfully" });
     } catch (error) {
         return res.status(500).json({ message: error.message });        
     }

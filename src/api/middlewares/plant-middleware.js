@@ -160,15 +160,30 @@ const idValidator = [
 const getPlantsValidator = [
     /**
      * Validations: query parameters
-     * 
+     *
      * Pagination:
      * page: integer (default: 1)
      * limit: integer (default: 10, max: 100)
-     * 
+     *
      * Sorting:
      * sortBy: string (default: 'name')
      * sortOrder: string (default: 'asc')
- 
+     *
+     * Filtering:
+     * category: string (optional)
+     * growth_cycle: string (optional)
+     * growth_habit: string (optional)
+     * growth_stages: string (optional)
+     * ideal_season: string (optional)
+     * purpose: string (optional)
+     *
+     * Allowed values for filtering:
+     * category: PLANT_CATEGORY
+     * growth_cycle: PLANT_GROWTH_CYCLE
+     * growth_habit: PLANT_GROWTH_HABIT
+     * growth_stages: Array of PLANT_GROWTH_STAGE
+     * ideal_season: SEASON
+     * purpose: PLANT_PURPOSE
      */
     query("page")
       .optional()
@@ -191,6 +206,31 @@ const getPlantsValidator = [
       .isString().withMessage("sortOrder must be a string").bail()
       .trim().toLowerCase()
       .isIn(["asc", "desc"]).withMessage("sortOrder must be either 'asc' or 'desc'"),  
+
+    query("category")
+      .optional()
+      .isString().withMessage("category must be a string").bail()
+      .isIn(toArrayOfVals(PLANT_CATEGORY)).withMessage(`category must be one of ${toArrayOfVals(PLANT_CATEGORY, true)}`),
+    
+    query("growth_cycle")
+      .optional()
+      .isString().withMessage("growth_cycle must be a string").bail()
+      .isIn(toArrayOfVals(PLANT_GROWTH_CYCLE)).withMessage(`growth_cycle must be one of ${toArrayOfVals(PLANT_GROWTH_CYCLE, true)}`),
+
+    query("growth_habit")
+      .optional()
+      .isString().withMessage("growth_habit must be a string").bail()
+      .isIn(toArrayOfVals(PLANT_GROWTH_HABIT)).withMessage(`growth_habit must be one of ${toArrayOfVals(PLANT_GROWTH_HABIT, true)}`),
+    
+    query("ideal_season")
+      .optional()
+      .isString().withMessage("ideal_season must be a string").bail()
+      .isIn(toArrayOfVals(SEASON)).withMessage(`ideal_season must be one of ${toArrayOfVals(SEASON, true)}`),
+
+    query("purpose")
+      .optional()
+      .isString().withMessage("purpose must be a string").bail()
+      .isIn(toArrayOfVals(PLANT_PURPOSE)).withMessage(`purpose must be one of ${toArrayOfVals(PLANT_PURPOSE, true)}`),
 ];
 
 /**

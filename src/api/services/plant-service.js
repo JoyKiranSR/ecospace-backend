@@ -43,16 +43,27 @@ const savePlant = async (plantDetails) => {
  * @param {Object} sorting - An object containing sorting parameters: sortBy and sortOrder.
  * @param {string} sorting.sortBy - The field to sort by (e.g., 'name').
  * @param {string} sorting.sortOrder - The order of sorting (e.g., 'asc' or 'desc').
+ * @param {Object} filters - An object containing filtering parameters.
+ * @param {string} filters.category - The category to filter plants by (optional).
+ * @param {string} filters.growthCycle - The growth cycle to filter plants by (optional).
+ * @param {string} filters.growthHabit - The growth habit to filter plants by (optional).
+ * @param {string} filters.idealSeason - The ideal season to filter plants by (optional).
+ * @param {string} filters.purpose - The purpose to filter plants by (optional).
  * @returns {Promise<Object>} - An object containing an array of plant objects and pagination metadata.
  * @throws {Error} - Throws an error if the fetch operation fails.
  */
-const getAllPlants = async (pagination, sorting) => {
+const getAllPlants = async (pagination, sorting, filters) => {
     try {
         const { limit, page } = pagination;
         const { sortBy, sortOrder } = sorting;
+        // NOTE: Adding filters directly as exact match as they are enums
+        console.debug("Fetching all plants with filters: %j", filters);
+        
         const offset = (page - 1) * limit;
         // Fetch all plants with pagination and sorting
-        const { count, rows } = await Plant.findAndCountAll({ limit, offset, order: [[sortBy, sortOrder]] });
+        const { count, rows } = await Plant.findAndCountAll({
+            limit, offset, order: [[sortBy, sortOrder]], where: filters,
+        });
 
         // Set pagination metadata
         const pageSize = limit;

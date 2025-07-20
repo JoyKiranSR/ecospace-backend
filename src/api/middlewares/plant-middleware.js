@@ -16,13 +16,7 @@ const { body, matchedData, param, query, validationResult } = require("express-v
 // Custom module imports
 const { PLANT_CATEGORY, PLANT_GROWTH_CYCLE, PLANT_GROWTH_HABIT, PLANT_PURPOSE, PLANT_GROWTH_STAGE } = require('../../constants/plant-constant');
 const { SEASON } = require('../../constants/season-constant');
-
-const toArrayOfVals = (obj, isStringify = false) => {
-  if (!obj || typeof obj !== "object") return [];
-  const arr = Object.values(obj);
-  if (isStringify) return arr.join(", ");
-  return arr;
-}
+const { toArrayOfVals } = require("../../utils/common");
 
 /**
  * @function validateNonEmptyStringArray

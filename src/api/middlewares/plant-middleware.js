@@ -195,17 +195,17 @@ const getPlantsValidator = [
       .isInt({ gt: 0 }).withMessage("limit must be a positive integer").bail()
       .toInt(),
   
-    query("sortBy")
+    query("sort_by")
       .optional()
-      .isString().withMessage("sortBy must be a string").bail()
-      .isIn(["name", "createdAt"]).withMessage("sortBy must be either 'name' or 'createdAt'")
+      .isString().withMessage("sort_by must be a string").bail()
+      .isIn(["name", "createdAt"]).withMessage("sort_by must be either 'name' or 'createdAt'")
       .trim(),
   
-    query("sortOrder")
+    query("sort_order")
       .optional()
-      .isString().withMessage("sortOrder must be a string").bail()
+      .isString().withMessage("sort_order must be a string").bail()
       .trim().toLowerCase()
-      .isIn(["asc", "desc"]).withMessage("sortOrder must be either 'asc' or 'desc'"),  
+      .isIn(["asc", "desc"]).withMessage("sort_order must be either 'asc' or 'desc'"),  
 
     query("category")
       .optional()

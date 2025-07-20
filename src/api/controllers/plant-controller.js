@@ -74,8 +74,8 @@ const createPlant = async (req, res) => {
  * @param {string} req.sanitizedQuery.purpose - The purpose of the plant (optional).
  * @param {number} req.sanitizedQuery.limit - The maximum number of plants to return per page (optional).
  * @param {number} req.sanitizedQuery.page - The current page number for pagination (optional).
- * @param {string} req.sanitizedQuery.sortBy - The field to sort by (optional, default is 'createdAt').
- * @param {string} req.sanitizedQuery.sortOrder - The order of sorting (optional, default is 'asc').
+ * @param {string} req.sanitizedQuery.sort_by - The field to sort by (optional, default is 'createdAt').
+ * @param {string} req.sanitizedQuery.sort_order - The order of sorting (optional, default is 'asc').
  * @param {Object} res - The response object used to send the response back to the client.
  * @return {Object} - Returns a JSON response with the list of plants, pagination metadata, and a success message.
  * If an error occurs, it returns a 500 status code with an error message.
@@ -83,7 +83,7 @@ const createPlant = async (req, res) => {
 const fetchAllPlants = async (req, res) => {
     try {
         let { category, growth_cycle: growthCycle, growth_habit: growthHabit,
-            ideal_season: idealSeason, purpose, limit, page, sortBy, sortOrder } = req.sanitizedQuery;
+            ideal_season: idealSeason, purpose, limit, page, sort_by: sortBy, sort_order: sortOrder } = req.sanitizedQuery;
         const DEFAULT_LIMIT = 10, MAX_LIMIT = 100, DEFAULT_PAGE = 1 ; // Default pagination values
         const SORT_PARAMS = ["name", "createdAt"], DEFAULT_SORT_BY = "createdAt", DEFAULT_SORT_ORDER = "asc"; // Default sorting values 
         /** 

@@ -233,6 +233,32 @@ const getPlantsValidator = [
       .isIn(toArrayOfVals(PLANT_PURPOSE)).withMessage(`purpose must be one of ${toArrayOfVals(PLANT_PURPOSE, true)}`),
 ];
 
+const patchUpdatePlantValidator = [
+    /**
+     * validations: Optional values
+     *
+     * common_names: Array of strings
+     * common_pests: Array of strings
+     * compatible_plants: Array of strings
+     * recommended_fertilizers: Array of strings
+     * region_compatibility: Array of strings
+     * scientific_name: string
+     * tags: Array of strings
+     */
+    validateNonEmptyStringArray("common_names"),
+    validateNonEmptyStringArray("common_pests"),
+    validateNonEmptyStringArray("compatible_plants"),
+    validateNonEmptyStringArray("recommended_fertilizers"),
+    validateNonEmptyStringArray("region_compatibility"),
+    validateNonEmptyStringArray("tags"),
+
+    body("scientific_name")
+      .optional()
+      .notEmpty().withMessage("scientific_name cannot be empty").bail()
+      .isString().withMessage("scientific_name must be a string")
+      .trim()
+];
+
 /**
  * @function plantValidator
  * 
@@ -287,6 +313,8 @@ const plantValidator = () => {
          * @returns {ValidationChain[]} - An array of validation chains for the plant ID.
          */
         id: () => idValidator,
+
+        patchOne: () => patchUpdatePlantValidator,
     };
 };
 

@@ -7,7 +7,7 @@
  * @description This module defines the service layer for plant-related operations in the Ecospace backend.
  * It includes functions to save a plant, fetch all plants, and fetch a plant by its ID.
  * @requires express-validator
- * @exports {getAllPlants, getPlantById, savePlant} 
+ * @exports {getAllPlants, getPlantById, savePlant, updatePlantDetails} 
  */
 
 // Custom module imports
@@ -106,4 +106,28 @@ const getPlantById = async (plantId) => {
     }
 };
 
-module.exports = { getAllPlants, getPlantById, savePlant };
+/**
+ * @function updatePlantDetails
+ * 
+ * @description Updates a plant by its ID from the PostgreSQL database using Sequelize.
+ * 
+ * @param {number} plantId - The ID of the plant to retrieve.
+ * @param {Object} plantDetails - The details of the plant which needs to be updated.
+ * @returns {Promise<Object|null>} - The updated plant object if plant found and update successful,
+ * else if plant not found, returns null
+ * @throws {Error} - Throws an error if the update operation fails.
+ * 
+ * Note: This function wont guarentee plant presence in DB for update operation, so careful to use this
+ * function with proper validations on object to be updated.
+ */
+const updatePlantDetails = async (plantId, plantDetails) => {
+    try {
+        const [ updatedCount, updatedRows ] = await Plant.update(plantDetails, { where: { id: plantId }, returning: true });
+        return updatedCount ? updatedRows[0] : null;
+    } catch (error) {
+        console.error("Error updating plant: ", error?.message || error);
+        throw new Error("Failed to update plant");  
+    }
+};
+
+module.exports = { getAllPlants, getPlantById, savePlant, updatePlantDetails };

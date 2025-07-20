@@ -12,6 +12,7 @@
  */
 
 // Custom module imports
+const { toSnakeCaseKeys } = require("../../utils/common");
 const { getAllPlants, getPlantById, savePlant, updatePlantDetails } = require("../services/plant-service");
 
 /**
@@ -52,7 +53,7 @@ const createPlant = async (req, res) => {
     // Save to DB
     try {
         const plant = await savePlant(plantDetails);
-        return res.status(201).send({ data: plant, message: "Created successfully" });
+        return res.status(201).send({ data: toSnakeCaseKeys(plant), message: "Created successfully" });
     } catch (error) {
         return res.status(500).json({ message: error.message });        
     }
@@ -175,7 +176,7 @@ const fetchAllPlants = async (req, res) => {
 
         // Fetch all plants with pagination, sorting and filtering
         const result = await getAllPlants({ limit, page }, { sortBy, sortOrder }, filters);
-        return res.status(200).json({ ...result, message: "Retrieved all plants successfully" });
+        return res.status(200).json({ ...toSnakeCaseKeys(result), message: "Retrieved all plants successfully" });
     } catch (error) {
         return res.status(500).json({ message: error.message });        
     }
@@ -200,7 +201,7 @@ const fetchPlantById = async (req, res) => {
         const plant = await getPlantById(plantId);
         const message = plant ? "Retrieved plant details successfully" : "Plant details not found";
         const statusCode = plant ? 200 : 404;
-        return res.status(statusCode).json({ data: plant, message });
+        return res.status(statusCode).json({ data: toSnakeCaseKeys(plant), message });
     } catch (error) {
         return res.status(500).json({ message: error.message });        
     }
@@ -250,7 +251,7 @@ const updatePlantDetailsById = async (req, res) => {
     try {
         const plant = await updatePlantDetails(plantId, plantDetails);
         if (!plant) return res.status(404).send({ data: null, message: "Plant not found" });
-        return res.status(200).send({ data: plant, message: "Updated successfully" });
+        return res.status(200).send({ data: toSnakeCaseKeys(plant), message: "Updated successfully" });
     } catch (error) {
         return res.status(500).json({ message: error.message });        
     }

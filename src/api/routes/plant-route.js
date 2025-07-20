@@ -19,7 +19,8 @@
 const { Router } = require("express");
 // Custom module imports
 const { plantValidator } = require("../middlewares/plant-middleware");
-const { createPlant, fetchAllPlants, fetchPlantById, updatePlantDetailsById } = require("../controllers/plant-controller");
+const { createPlant, deletePlantById, fetchAllPlants, fetchPlantById,
+    updatePlantDetailsById } = require("../controllers/plant-controller");
 
 // Initialize the router and validator
 const routes = Router();
@@ -30,6 +31,7 @@ routes.post("/", validator.create(), validator.errorHandler, createPlant);
 routes.get("/", validator.get(), validator.errorHandler, fetchAllPlants);
 routes.get("/:plantId", validator.id(), validator.errorHandler, fetchPlantById);
 routes.patch("/:plantId", validator.id(), validator.patchOne(), validator.errorHandler, updatePlantDetailsById);
+routes.delete("/:plantId", validator.id(), validator.errorHandler, deletePlantById);
 
 // Export the routes for use in the main application
 module.exports = routes;

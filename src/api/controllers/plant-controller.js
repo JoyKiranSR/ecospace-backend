@@ -59,6 +59,41 @@ const createPlant = async (req, res) => {
 };
 
 /**
+ * @function deletePlantById
+ * @delete
+ * @description Handles the deletion of a plant by its ID.
+ * It checks if the plant exists in the database and deletes it.
+ * If the plant is not found, it returns a 404 status code with an error message.
+ * If the deletion logic is not implemented, it returns a 202 status code with a message.
+ *
+ * @param {Object} req - The request object containing the plant ID in the path parameters.
+ * @param {string} req.params.plantId - The ID of the plant to be deleted.
+ * @param {Object} res - The response object used to send the response back to the client.
+ * @returns {Object} - Returns a JSON response with the deleted plant details and a success message if successful,
+ * or an error message with a 500 status code if the deletion fails.
+ */
+const deletePlantById = async (req, res) => {
+    const { plantId } = req.params;
+    if (!plantId) return res.status(400).json({ message: "Required ID of the plant" });
+    try {
+        const plant = await getPlantById(plantId);
+        if (!plant) return res.status(404).json({ message: "Plant details not found" });
+        /**
+         * Delete the plant by its ID
+         *
+         * This is a placeholder for the actual deletion logic.
+         * You would typically call a service function to delete the plant from the database.
+         * For example: await deletePlant(plantId);
+         *
+         * Note: Currently, the deletion logic is not implemented.
+         * So, will send a 202 status code with a message indicating that the deletion logic is not implemented.
+         */ 
+        return res.status(202).json({ message: "This action is not available yet but will be supported soon" });
+    } catch (error) {
+        return res.status(500).json({ message: error.message });        
+    }
+}
+/**
  * @function fetchAllPlants
  * @get
  * @description Handles the retrieval of all plants from the database.
@@ -222,4 +257,4 @@ const updatePlantDetailsById = async (req, res) => {
 };
 
 // Export the controller handler functions for use in the routes
-module.exports = { createPlant, fetchAllPlants, fetchPlantById, updatePlantDetailsById };
+module.exports = { createPlant, deletePlantById, fetchAllPlants, fetchPlantById, updatePlantDetailsById };

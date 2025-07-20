@@ -25,7 +25,7 @@ const Plant = require('../../db/models/Plant');
 const savePlant = async (plantDetails) => {
     try {
         const plant = await Plant.create(plantDetails);
-        return plant;
+        return plant.toJSON(); // Convert the Sequelize instance to a plain object
     } catch (error) {
         console.error("Error saving plant: ", error?.message || error);
         throw new Error("Failed to save plant");        
@@ -79,8 +79,9 @@ const getAllPlants = async (pagination, sorting, filters) => {
         if (!hasExceededPage && maxLimitApplied) paginationMetadata = { ...paginationMetadata, maxLimitApplied };
         console.debug("Fetched %d plants with pagination: %j", rows.length, paginationMetadata);
         
+        const data = rows.map(row => row.toJSON()); // Convert Sequelize instances to plain objects
         // Return the rows and pagination metadata
-        return { data: rows, pagination: paginationMetadata };
+        return { data, pagination: paginationMetadata };
     } catch (error) {
         console.error("Error fetching all plants: ", error?.message || error);
         throw new Error("Failed to fetch plants");        
@@ -99,7 +100,7 @@ const getAllPlants = async (pagination, sorting, filters) => {
 const getPlantById = async (plantId) => {
     try {
         const plant = await Plant.findByPk(plantId);
-        return plant;
+        return plant.toJSON(); // Convert the Sequelize instance to a plain object
     } catch (error) {
         console.error("Error fetching plant with ID: %s", plantId, error?.message || error);
         throw new Error(`Failed to fetch plant with ID ${plantId}`);       
@@ -123,7 +124,7 @@ const getPlantById = async (plantId) => {
 const updatePlantDetails = async (plantId, plantDetails) => {
     try {
         const [ updatedCount, updatedRows ] = await Plant.update(plantDetails, { where: { id: plantId }, returning: true });
-        return updatedCount ? updatedRows[0] : null;
+        return updatedCount ? updatedRows[0].toJSON() : null; // toJSON converts the Sequelize instance to a plain object
     } catch (error) {
         console.error("Error updating plant: ", error?.message || error);
         throw new Error("Failed to update plant");  

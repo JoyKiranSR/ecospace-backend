@@ -100,7 +100,8 @@ const getAllPlants = async (pagination, sorting, filters) => {
 const getPlantById = async (plantId) => {
     try {
         const plant = await Plant.findByPk(plantId);
-        return plant.toJSON(); // Convert the Sequelize instance to a plain object
+        // Convert the Sequelize instance to a plain object if found, else return null
+        return plant ? plant.toJSON() : null;
     } catch (error) {
         console.error("Error fetching plant with ID: %s", plantId, error?.message || error);
         throw new Error(`Failed to fetch plant with ID ${plantId}`);       

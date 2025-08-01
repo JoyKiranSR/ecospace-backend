@@ -24,6 +24,10 @@ routes.all("/", (req, res, next) => {
     }
     next();
 });
+routes.post("/", (_req, res) => {
+    // Placeholder for creating soil
+    res.status(201).json({ message: "Soil created successfully" });
+});
 
 // Export the routes for use in the main application
 module.exports = routes;

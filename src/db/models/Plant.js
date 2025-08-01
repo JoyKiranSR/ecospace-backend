@@ -132,7 +132,10 @@ const Plant = sequelize.define('Plant', {
                 if (!value) return; // Skip validation if value is null or undefined
                 if (!Array.isArray(value)) throw new Error('growth_stages must be an array');
                 const growthStages = Object.values(PLANT_GROWTH_STAGE);
-                const invalid = value.filter(stage => !growthStages.includes(stage));
+                // Convert to lowercase and trim whitespace for comparison and filter invalid stages
+                const invalid = value
+                                    .map(stage => stage.trim().toLowerCase())
+                                    .filter(stage => !growthStages.includes(stage));
                 if (invalid.length > 0) {
                     throw new Error(`Invalid growth stage(s): ${invalid.join(', ')}`);
                 }

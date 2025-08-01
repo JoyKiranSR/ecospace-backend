@@ -7,7 +7,7 @@
  * @description This module defines the service layer for plant-related operations in the Ecospace backend.
  * It includes functions to save a plant, fetch all plants, and fetch a plant by its ID.
  * @requires express-validator
- * @exports {getAllPlants, getPlantById, savePlant} 
+ * @exports {getAllPlants, getPlantById, savePlant, updatePlantDetails} 
  */
 
 // Custom module imports
@@ -25,7 +25,7 @@ const Plant = require('../../db/models/Plant');
 const savePlant = async (plantDetails) => {
     try {
         const plant = await Plant.create(plantDetails);
-        return plant;
+        return plant.toJSON(); // Convert the Sequelize instance to a plain object
     } catch (error) {
         console.error("Error saving plant: ", error?.message || error);
         throw new Error("Failed to save plant");        
@@ -79,8 +79,9 @@ const getAllPlants = async (pagination, sorting, filters) => {
         if (!hasExceededPage && maxLimitApplied) paginationMetadata = { ...paginationMetadata, maxLimitApplied };
         console.debug("Fetched %d plants with pagination: %j", rows.length, paginationMetadata);
         
+        const data = rows.map(row => row.toJSON()); // Convert Sequelize instances to plain objects
         // Return the rows and pagination metadata
-        return { data: rows, pagination: paginationMetadata };
+        return { data, pagination: paginationMetadata };
     } catch (error) {
         console.error("Error fetching all plants: ", error?.message || error);
         throw new Error("Failed to fetch plants");        
@@ -99,11 +100,36 @@ const getAllPlants = async (pagination, sorting, filters) => {
 const getPlantById = async (plantId) => {
     try {
         const plant = await Plant.findByPk(plantId);
-        return plant;
+        // Convert the Sequelize instance to a plain object if found, else return null
+        return plant ? plant.toJSON() : null;
     } catch (error) {
         console.error("Error fetching plant with ID: %s", plantId, error?.message || error);
         throw new Error(`Failed to fetch plant with ID ${plantId}`);       
     }
 };
 
-module.exports = { getAllPlants, getPlantById, savePlant };
+/**
+ * @function updatePlantDetails
+ * 
+ * @description Updates a plant by its ID from the PostgreSQL database using Sequelize.
+ * 
+ * @param {number} plantId - The ID of the plant to retrieve.
+ * @param {Object} plantDetails - The details of the plant which needs to be updated.
+ * @returns {Promise<Object|null>} - The updated plant object if plant found and update successful,
+ * else if plant not found, returns null
+ * @throws {Error} - Throws an error if the update operation fails.
+ * 
+ * Note: This function wont guarentee plant presence in DB for update operation, so careful to use this
+ * function with proper validations on object to be updated.
+ */
+const updatePlantDetails = async (plantId, plantDetails) => {
+    try {
+        const [ updatedCount, updatedRows ] = await Plant.update(plantDetails, { where: { id: plantId }, returning: true });
+        return updatedCount ? updatedRows[0].toJSON() : null; // toJSON converts the Sequelize instance to a plain object
+    } catch (error) {
+        console.error("Error updating plant: ", error?.message || error);
+        throw new Error("Failed to update plant");  
+    }
+};
+
+module.exports = { getAllPlants, getPlantById, savePlant, updatePlantDetails };

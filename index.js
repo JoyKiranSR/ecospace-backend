@@ -4,29 +4,18 @@
  * @module index
  * Ecospace Backend Server
  * 
- * @description This is the main entry point for the Ecospace backend server.
- * It sets up an Express server that listens on port 7000 and provides routes for 
- * various ecospace services.
+ * @description This module serves as server entry point for the Ecospace backend application.
+ * It initializes the Express application and starts the server on a specified port.
+ * The server listens for incoming requests and handles them through application defined routes.
  * 
- * @requires express
- * @requires plant-route
+ * @requires app
  */
 
-// Core module imports
-const express = require("express");
 // Custom module imports
-const plantRoutes = require("./src/api/routes/plant-route");
+const app = require("./src/app");
 
-// Initialize the Express application
-const app = express();
+// Port configuration
 const PORT = 7000;
-
-// Middleware to parse JSON request bodies
-app.use(express.json());
-
-// Middleware to parse various ecospace service routes
-app.use("/plants", plantRoutes);
-app.get("/", (_req, res) => res.status(200).send("Welcome to Ecospace backend"));
 
 // Start the server and listen on the specified port
 app.listen(PORT, () => console.log("Ecospace backend running on PORT %d", PORT));

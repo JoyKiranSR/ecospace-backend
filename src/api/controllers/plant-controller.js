@@ -8,15 +8,16 @@
  * It includes functions to create a plant, fetch all plants, and fetch a plant by its ID.
  *
  * @requires plant-service
- * @exports {createPlant, fetchAllPlants, fetchPlantById}
+ * @exports {createPlant, fetchAllPlants, fetchPlantById, updatePlantDetailsById}
  */
 
 // Custom module imports
-const { getAllPlants, savePlant, getPlantById } = require("../services/plant-service");
+const { toSnakeCaseKeys } = require("../../utils/common");
+const { getAllPlants, getPlantById, savePlant, updatePlantDetails } = require("../services/plant-service");
 
 /**
  * @function createPlant
- * 
+ * @post
  * @description Handles the creation of a new plant.
  * It validates the request body, constructs a plant object, and saves it to the database.
  * If the request body is invalid, it returns a 400 status code with an error message.
@@ -52,15 +53,50 @@ const createPlant = async (req, res) => {
     // Save to DB
     try {
         const plant = await savePlant(plantDetails);
-        return res.status(201).send({ data: plant, message: "Created successfully" });
+        return res.status(201).send({ data: toSnakeCaseKeys(plant), message: "Created successfully" });
     } catch (error) {
         return res.status(500).json({ message: error.message });        
     }
 };
 
 /**
+ * @function deletePlantById
+ * @delete
+ * @description Handles the deletion of a plant by its ID.
+ * It checks if the plant exists in the database and deletes it.
+ * If the plant is not found, it returns a 404 status code with an error message.
+ * If the deletion logic is not implemented, it returns a 202 status code with a message.
+ *
+ * @param {Object} req - The request object containing the plant ID in the path parameters.
+ * @param {string} req.params.plantId - The ID of the plant to be deleted.
+ * @param {Object} res - The response object used to send the response back to the client.
+ * @returns {Object} - Returns a JSON response with the deleted plant details and a success message if successful,
+ * or an error message with a 500 status code if the deletion fails.
+ */
+const deletePlantById = async (req, res) => {
+    const { plantId } = req.params;
+    if (!plantId) return res.status(400).json({ message: "Required ID of the plant" });
+    try {
+        const plant = await getPlantById(plantId);
+        if (!plant) return res.status(404).json({ message: "Plant details not found" });
+        /**
+         * Delete the plant by its ID
+         *
+         * This is a placeholder for the actual deletion logic.
+         * You would typically call a service function to delete the plant from the database.
+         * For example: await deletePlant(plantId);
+         *
+         * Note: Currently, the deletion logic is not implemented.
+         * So, will send a 202 status code with a message indicating that the deletion logic is not implemented.
+         */ 
+        return res.status(202).json({ message: "This action is not available yet but will be supported soon" });
+    } catch (error) {
+        return res.status(500).json({ message: error.message });        
+    }
+}
+/**
  * @function fetchAllPlants
- * 
+ * @get
  * @description Handles the retrieval of all plants from the database.
  * It fetches all plants and returns them in a JSON response with a success message.
  * If there are no plants, it returns an empty array.
@@ -140,7 +176,7 @@ const fetchAllPlants = async (req, res) => {
 
         // Fetch all plants with pagination, sorting and filtering
         const result = await getAllPlants({ limit, page }, { sortBy, sortOrder }, filters);
-        return res.status(200).json({ ...result, message: "Retrieved all plants successfully" });
+        return res.status(200).json({ ...toSnakeCaseKeys(result), message: "Retrieved all plants successfully" });
     } catch (error) {
         return res.status(500).json({ message: error.message });        
     }
@@ -148,7 +184,7 @@ const fetchAllPlants = async (req, res) => {
 
 /**
  * @function fetchPlantById
- * 
+ * @get
  * @description Handles the retrieval of a plant by its ID.
  * It checks if the plant exists in the database and returns its details.
  * If the plant is not found, it returns a 404 status code with an error message.
@@ -165,11 +201,61 @@ const fetchPlantById = async (req, res) => {
         const plant = await getPlantById(plantId);
         const message = plant ? "Retrieved plant details successfully" : "Plant details not found";
         const statusCode = plant ? 200 : 404;
-        return res.status(statusCode).json({ data: plant, message });
+        return res.status(statusCode).json({ data: toSnakeCaseKeys(plant), message });
+    } catch (error) {
+        return res.status(500).json({ message: error.message });        
+    }
+};
+
+/**
+ * @function updatePlantDetailsById
+ * @patch
+ * @description Handles the patch update of plant details by its ID.
+ * It checks and updates the details of the plant in the database and returns its details.
+ * If the plant is not found, it returns a 404 status code with an error message.
+ *
+ * @param {Object} req - The request object containing the plant details in the body.
+ * @param {Object} res - The response object used to send the response back to the client.
+ * @return {Object} - Returns a JSON response with the updated plant details and a success message if successful,
+ * or null if no plant found for the given ID or an error message with a 500 status code if the updation fails.
+ */
+const updatePlantDetailsById = async (req, res) => {
+    const updatePlantDetailParams = ["common_names", "common_pests", "compatible_plants", "growth_stages",
+        "recommended_fertilizers", "region_compatibility", "scientific_name", "tags"];
+    let plantDetails = {};
+    if (!req.params.plantId) return res.status(400).json({ message: "Required ID of the plant" });
+    if (!req.body) return res.status(400).json({ message: "Required body" });
+    // Check valid params for patch update
+    if (!Object.keys(req.body).every(param => updatePlantDetailParams.includes(param))) return res.status(400).json({ message: "No details to update" });
+    console.debug("Body received for update:", req.body);
+    console.debug("Path param plantId received for update:", req.params.plantId);
+
+    // Get plantId from request params
+    const { plantId } = req.params;
+    // Destructure the plant details from the request body
+    const { common_names: commonNames, common_pests: commonPests, compatible_plants: compatiblePlants,
+        growth_stages: growthStages, recommended_fertilizers: recommendedFertilizers,
+        region_compatibility: regionCompatibility, scientific_name: scientificName, tags } = req.body;
+    
+    // Pass details to be updated of the plant to an object
+    if (commonNames) plantDetails.commonNames = commonNames;
+    if (commonPests) plantDetails.commonPests = commonPests;
+    if (compatiblePlants) plantDetails.compatiblePlants = compatiblePlants;
+    if (growthStages) plantDetails.growthStages = growthStages;
+    if (recommendedFertilizers) plantDetails.recommendedFertilizers = recommendedFertilizers;
+    if (regionCompatibility) plantDetails.regionCompatibility = regionCompatibility;
+    if (scientificName) plantDetails.scientificName = scientificName;
+    if (tags) plantDetails.tags = tags;
+
+    // Update details to DB
+    try {
+        const plant = await updatePlantDetails(plantId, plantDetails);
+        if (!plant) return res.status(404).send({ data: null, message: "Plant not found" });
+        return res.status(200).send({ data: toSnakeCaseKeys(plant), message: "Updated successfully" });
     } catch (error) {
         return res.status(500).json({ message: error.message });        
     }
 };
 
 // Export the controller handler functions for use in the routes
-module.exports = { createPlant, fetchAllPlants, fetchPlantById };
+module.exports = { createPlant, deletePlantById, fetchAllPlants, fetchPlantById, updatePlantDetailsById };

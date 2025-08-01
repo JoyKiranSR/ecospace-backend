@@ -16,13 +16,7 @@ const { body, matchedData, param, query, validationResult } = require("express-v
 // Custom module imports
 const { PLANT_CATEGORY, PLANT_GROWTH_CYCLE, PLANT_GROWTH_HABIT, PLANT_PURPOSE, PLANT_GROWTH_STAGE } = require('../../constants/plant-constant');
 const { SEASON } = require('../../constants/season-constant');
-
-const toArrayOfVals = (obj, isStringify = false) => {
-  if (!obj || typeof obj !== "object") return [];
-  const arr = Object.values(obj);
-  if (isStringify) return arr.join(", ");
-  return arr;
-}
+const { toArrayOfVals } = require("../../utils/common");
 
 /**
  * @function validateNonEmptyStringArray
@@ -36,8 +30,12 @@ const validateNonEmptyStringArray = field =>
   body(field)
     .optional()
     .isArray({ min: 1 }).withMessage(`${field} must be a non-empty array`).bail()
+    // Custom sanitizer to ensure all items are non-empty trimmed strings without repeatation
     .customSanitizer(arr =>
-      arr.filter(item => typeof item === "string" && item.trim() !== "")
+      [...new Set(arr
+        .filter(item => typeof item === "string" && item.trim() !== "")
+        .map(item => item.trim())
+      )]
     )
     .custom(arr => arr.length > 0)
     .withMessage(`${field} must have at least one non-empty string`);
@@ -74,36 +72,42 @@ const createPlantValidator = [
       .trim()
       .notEmpty().withMessage("category is required").bail()
       .isString().withMessage("category must be a string").bail()
+      .trim().toLowerCase()
       .isIn(toArrayOfVals(PLANT_CATEGORY)).withMessage(`category must be one of ${toArrayOfVals(PLANT_CATEGORY, true)}`),
   
     body("growth_cycle")
       .trim()
       .notEmpty().withMessage("growth_cycle is required").bail()
       .isString().withMessage("growth_cycle must be a string").bail()
+      .trim().toLowerCase()
       .isIn(toArrayOfVals(PLANT_GROWTH_CYCLE)).withMessage(`growth_cycle must be one of ${toArrayOfVals(PLANT_GROWTH_CYCLE, true)}`),
   
     body("growth_habit")
       .trim()
       .notEmpty().withMessage("growth_habit is required").bail()
       .isString().withMessage("growth_habit must be a string").bail()
+      .trim().toLowerCase()
       .isIn(toArrayOfVals(PLANT_GROWTH_HABIT)).withMessage(`growth_habit must be one of ${toArrayOfVals(PLANT_GROWTH_HABIT, true)}`),
   
     body("ideal_season")
       .trim()
       .notEmpty().withMessage("ideal_season is required").bail()
       .isString().withMessage("ideal_season must be a string").bail()
+      .trim().toLowerCase()
       .isIn(toArrayOfVals(SEASON)).withMessage(`ideal_season must be one of ${toArrayOfVals(SEASON, true)}`),
   
     body("name")
       .trim()
       .notEmpty().withMessage("name is required").bail()
       .isString().withMessage("name must be a string")
+      .trim().toLowerCase()
       .isLength({ max: 20 }).withMessage("name must be at most 20 characters long"),
   
     body("purpose")
       .trim()
       .notEmpty().withMessage("purpose is required").bail()
       .isString().withMessage("purpose must be a string").bail()
+      .trim().toLowerCase()
       .isIn(toArrayOfVals(PLANT_PURPOSE)).withMessage(`purpose must be one of ${toArrayOfVals(PLANT_PURPOSE, true)}`),
 
     /**
@@ -124,8 +128,13 @@ const createPlantValidator = [
     body("growth_stages")
       .optional()
       .isArray({ min: 1 }).withMessage("growth_stages must be a non-empty array").bail()
-      .custom(arr => arr.every(stage => toArrayOfVals(PLANT_GROWTH_STAGE).includes(stage)))
-      .withMessage(`growth_stages must contain only values from ${toArrayOfVals(PLANT_GROWTH_STAGE, true)}`),
+      .custom(arr => arr.every(stage => {
+        stage = stage.trim().toLowerCase();
+        // Check if stage is a valid PLANT_GROWTH_STAGE
+        return toArrayOfVals(PLANT_GROWTH_STAGE).includes(stage);
+      }))
+      .withMessage(`growth_stages must contain only values from ${toArrayOfVals(PLANT_GROWTH_STAGE, true)}`).bail()
+      .customSanitizer(arr => [...new Set(arr)]),
     validateNonEmptyStringArray("recommended_fertilizers"),
     validateNonEmptyStringArray("region_compatibility"),
     validateNonEmptyStringArray("tags"),
@@ -134,7 +143,8 @@ const createPlantValidator = [
       .optional()
       .notEmpty().withMessage("scientific_name cannot be empty").bail()
       .isString().withMessage("scientific_name must be a string")
-      .trim()
+      .trim().toLowerCase() // scientific_name should be sanitized to lowercase
+      .isLength({ max: 50 }).withMessage("scientific_name must be at most 50 characters long")
 ];
 
 /**
@@ -198,8 +208,8 @@ const getPlantsValidator = [
     query("sort_by")
       .optional()
       .isString().withMessage("sort_by must be a string").bail()
-      .isIn(["name", "createdAt"]).withMessage("sort_by must be either 'name' or 'createdAt'")
-      .trim(),
+      .trim()
+      .isIn(["name", "createdAt"]).withMessage("sort_by must be either 'name' or 'createdAt'"),
   
     query("sort_order")
       .optional()
@@ -210,27 +220,59 @@ const getPlantsValidator = [
     query("category")
       .optional()
       .isString().withMessage("category must be a string").bail()
+      .trim().toLowerCase()
       .isIn(toArrayOfVals(PLANT_CATEGORY)).withMessage(`category must be one of ${toArrayOfVals(PLANT_CATEGORY, true)}`),
     
     query("growth_cycle")
       .optional()
       .isString().withMessage("growth_cycle must be a string").bail()
+      .trim().toLowerCase()
       .isIn(toArrayOfVals(PLANT_GROWTH_CYCLE)).withMessage(`growth_cycle must be one of ${toArrayOfVals(PLANT_GROWTH_CYCLE, true)}`),
 
     query("growth_habit")
       .optional()
       .isString().withMessage("growth_habit must be a string").bail()
+      .trim().toLowerCase()
       .isIn(toArrayOfVals(PLANT_GROWTH_HABIT)).withMessage(`growth_habit must be one of ${toArrayOfVals(PLANT_GROWTH_HABIT, true)}`),
     
     query("ideal_season")
       .optional()
       .isString().withMessage("ideal_season must be a string").bail()
+      .trim().toLowerCase()
       .isIn(toArrayOfVals(SEASON)).withMessage(`ideal_season must be one of ${toArrayOfVals(SEASON, true)}`),
 
     query("purpose")
       .optional()
       .isString().withMessage("purpose must be a string").bail()
+      .trim().toLowerCase()
       .isIn(toArrayOfVals(PLANT_PURPOSE)).withMessage(`purpose must be one of ${toArrayOfVals(PLANT_PURPOSE, true)}`),
+];
+
+const patchUpdatePlantValidator = [
+    /**
+     * validations: Optional values
+     *
+     * common_names: Array of strings
+     * common_pests: Array of strings
+     * compatible_plants: Array of strings
+     * recommended_fertilizers: Array of strings
+     * region_compatibility: Array of strings
+     * scientific_name: string
+     * tags: Array of strings
+     */
+    validateNonEmptyStringArray("common_names"),
+    validateNonEmptyStringArray("common_pests"),
+    validateNonEmptyStringArray("compatible_plants"),
+    validateNonEmptyStringArray("recommended_fertilizers"),
+    validateNonEmptyStringArray("region_compatibility"),
+    validateNonEmptyStringArray("tags"),
+
+    body("scientific_name")
+      .optional()
+      .notEmpty().withMessage("scientific_name cannot be empty").bail()
+      .isString().withMessage("scientific_name must be a string")
+      .trim().toLowerCase() // scientific_name should be sanitized to lowercase
+      .isLength({ max: 50 }).withMessage("scientific_name must be at most 50 characters long"),
 ];
 
 /**
@@ -287,6 +329,8 @@ const plantValidator = () => {
          * @returns {ValidationChain[]} - An array of validation chains for the plant ID.
          */
         id: () => idValidator,
+
+        patchOne: () => patchUpdatePlantValidator,
     };
 };
 

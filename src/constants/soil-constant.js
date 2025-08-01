@@ -7,7 +7,8 @@
  * @description This module defines constants related to soil in the Ecospace backend.
  * 
  * @requires none
- * @exports
+ * @exports {SOIL_DRAINAGE, SOIL_NUTRIENT_LEVEL, SOIL_ORGANIC_MATTER_LEVEL, SOIL_PH_TYPE,
+ * SOIL_TEXTURE, SOIL_TYPE, SOIL_WATER_RETENTION}
  */
 
 /**

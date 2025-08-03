@@ -1,6 +1,6 @@
 // src/api/middlewares/soil-middleware.js
 
-const { body } = require("express-validator");
+const { body, param } = require("express-validator");
 const { SOIL_DRAINAGE, SOIL_NUTRIENT_LEVEL, SOIL_ORGANIC_MATTER_LEVEL, SOIL_TEXTURE,
   SOIL_TYPE, SOIL_WATER_RETENTION_LEVEL} = require("../../constants/soil-constant");
 const { toArrayOfVals } = require("../../utils/common");
@@ -141,6 +141,26 @@ const createSoilValidator = [
     .toFloat()
 ];
 
+/**
+ * @constant idValidator
+ * 
+ * @description Validation rules for soil ID.
+ * It checks that the soil_id is a required path parameter and is a valid UUID v4.
+ * 
+ * @type {ValidationChain[]}
+ */
+const idValidator = [
+    /**
+     * Validations: Required path parameter
+     * 
+     * soil_id: integer
+     */
+    param("soil_id")
+      .exists().withMessage("soil_id is required").bail()
+      .isUUID(4).withMessage("soil_id must be a valid UUID v4")
+      .trim()
+];
+
 const soilValidator = () => {
   return {
     /**
@@ -152,7 +172,17 @@ const soilValidator = () => {
      * 
      * @returns {ValidationChain[]} - An array of validation chains for creating soil.
      */
-    create: () => createSoilValidator
+    create: () => createSoilValidator,
+
+    /**
+     * @function id
+     * 
+     * @description Method to validate the soil ID from the request parameters.
+     * It uses the idValidator defined above to ensure the ID is a valid integer.
+     * 
+     * @returns {ValidationChain[]} - An array of validation chains for the soil ID.
+     */
+    id: () => idValidator,
   }
 };
 

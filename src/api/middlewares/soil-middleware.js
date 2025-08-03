@@ -201,11 +201,11 @@ const getSoilsValidator = [
       .trim().toLowerCase()
       .isIn(toArrayOfVals(SOIL_DRAINAGE)).withMessage(`drainage must be one of ${toArrayOfVals(SOIL_DRAINAGE, true)}`),
     
-    query("nutrient_cycle")
+    query("nutrient_level")
       .optional()
-      .isString().withMessage("nutrient_cycle must be a string").bail()
+      .isString().withMessage("nutrient_level must be a string").bail()
       .trim().toLowerCase()
-      .isIn(toArrayOfVals(SOIL_NUTRIENT_LEVEL)).withMessage(`nutrient_cycle must be one of ${toArrayOfVals(SOIL_NUTRIENT_LEVEL, true)}`),
+      .isIn(toArrayOfVals(SOIL_NUTRIENT_LEVEL)).withMessage(`nutrient_level must be one of ${toArrayOfVals(SOIL_NUTRIENT_LEVEL, true)}`),
 
     query("organic_matter_level")
       .optional()

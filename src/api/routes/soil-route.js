@@ -32,7 +32,7 @@ routes.all("/", (req, res, next) => {
     next();
 });
 routes.post("/", validator.create(), validationErrorHandler, createSoil);
-routes.get("/", fetchAllSoils);
+routes.get("/", validator.get(), validationErrorHandler, fetchAllSoils);
 routes.get("/:soil_id", validator.id(), validationErrorHandler, fetchSoilById);
 
 // Export the routes for use in the main application

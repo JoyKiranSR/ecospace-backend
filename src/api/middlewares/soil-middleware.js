@@ -1,6 +1,6 @@
 // src/api/middlewares/soil-middleware.js
 
-const { body, param } = require("express-validator");
+const { body, param, query } = require("express-validator");
 const { SOIL_DRAINAGE, SOIL_NUTRIENT_LEVEL, SOIL_ORGANIC_MATTER_LEVEL, SOIL_TEXTURE,
   SOIL_TYPE, SOIL_WATER_RETENTION_LEVEL} = require("../../constants/soil-constant");
 const { toArrayOfVals } = require("../../utils/common");
@@ -34,7 +34,6 @@ const createSoilValidator = [
    * name: string
    * nutrient_level: string
    * organic_matter_level: string
-   * texture: string
    * type: string
    * texture: string
    * water_retention_level: string
@@ -142,6 +141,86 @@ const createSoilValidator = [
 ];
 
 /**
+ * @constant getSoilsValidator
+ *
+ * @description Validation rules for fetching all soils.
+ * It checks for optional query parameters like page, limit, sort_by, sort_order, and various filters.
+ * It ensures that pagination, sorting, and filtering parameters are valid.
+ *
+ * @type {ValidationChain[]}
+ */
+const getSoilsValidator = [
+    /**
+     * Validations: query parameters
+     *
+     * Pagination:
+     * page: integer (default: 1)
+     * limit: integer (default: 10, max: 50)
+     *
+     * Sorting:
+     * sortBy: string (default: 'name')
+     * sortOrder: string (default: 'asc')
+     *
+     * Filtering:
+     * drainage: string (optional)
+     * nutrient_level: string (optional)
+     * organic_matter_level: string (optional)
+     * water_retention_level: string (optional)
+     *
+     * Allowed values for filtering:
+     * drainage: SOIL_DRAINAGE
+     * nutrient_level: SOIL_NUTRIENT_LEVEL
+     * organic_matter_level: SOIL_ORGANIC_MATTER_LEVEL
+     * water_retention_level: SOIL_WATER_RETENTION_LEVEL
+     */
+    query("page")
+      .optional()
+      .isInt({ gt: 0 }).withMessage("page must be a positive integer").bail()
+      .toInt(),
+  
+    query("limit")
+      .optional()
+      .isInt({ gt: 0 }).withMessage("limit must be a positive integer").bail()
+      .toInt(),
+  
+    query("sort_by")
+      .optional()
+      .isString().withMessage("sort_by must be a string").bail()
+      .trim()
+      .isIn(["name", "created_at"]).withMessage("sort_by must be either 'name' or 'created_at'"),
+  
+    query("sort_order")
+      .optional()
+      .isString().withMessage("sort_order must be a string").bail()
+      .trim().toLowerCase()
+      .isIn(["asc", "desc"]).withMessage("sort_order must be either 'asc' or 'desc'"),  
+
+    query("drainage")
+      .optional()
+      .isString().withMessage("drainage must be a string").bail()
+      .trim().toLowerCase()
+      .isIn(toArrayOfVals(SOIL_DRAINAGE)).withMessage(`drainage must be one of ${toArrayOfVals(SOIL_DRAINAGE, true)}`),
+    
+    query("nutrient_cycle")
+      .optional()
+      .isString().withMessage("nutrient_cycle must be a string").bail()
+      .trim().toLowerCase()
+      .isIn(toArrayOfVals(SOIL_NUTRIENT_LEVEL)).withMessage(`nutrient_cycle must be one of ${toArrayOfVals(SOIL_NUTRIENT_LEVEL, true)}`),
+
+    query("organic_matter_level")
+      .optional()
+      .isString().withMessage("organic_matter_level must be a string").bail()
+      .trim().toLowerCase()
+      .isIn(toArrayOfVals(SOIL_ORGANIC_MATTER_LEVEL)).withMessage(`organic_matter_level must be one of ${toArrayOfVals(SOIL_ORGANIC_MATTER_LEVEL, true)}`),
+    
+    query("water_retention_level")
+      .optional()
+      .isString().withMessage("water_retention_level must be a string").bail()
+      .trim().toLowerCase()
+      .isIn(toArrayOfVals(SOIL_WATER_RETENTION_LEVEL)).withMessage(`water_retention_level must be one of ${toArrayOfVals(SOIL_WATER_RETENTION_LEVEL, true)}`),
+];
+
+/**
  * @constant idValidator
  * 
  * @description Validation rules for soil ID.
@@ -183,6 +262,16 @@ const soilValidator = () => {
      * @returns {ValidationChain[]} - An array of validation chains for the soil ID.
      */
     id: () => idValidator,
+
+    /**
+     * @function get
+     * 
+     * @description Method to validate the request query parameters for fetching all soils.
+     * It uses the getSoilsValidator defined above to ensure pagination, sorting, and filtering parameters are valid.
+     *
+     * @returns {ValidationChain[]} - An array of validation chains for fetching all soils.
+     */
+    get: () => getSoilsValidator,
   }
 };
 

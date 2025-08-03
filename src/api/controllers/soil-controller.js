@@ -66,7 +66,7 @@ const fetchAllSoils = async (req, res) => {
         page, sort_by: sortBy, sort_order: sortOrder, texture, type,
         water_retention_level: waterRetentionLevel } = req.sanitizedQuery ?? req.query;
     const DEFAULT_LIMIT = 10, MAX_LIMIT = 50, DEFAULT_PAGE = 1 ; // Default pagination values
-    const SORT_PARAMS = ["name", "createdAt"], DEFAULT_SORT_BY = "createdAt", DEFAULT_SORT_ORDER = "asc"; // Default sorting values
+    const SORT_PARAMS = ["name", "created_at"], DEFAULT_SORT_BY = "created_at", DEFAULT_SORT_ORDER = "asc"; // Default sorting values
     /** 
      * Validations: Pagination
      *

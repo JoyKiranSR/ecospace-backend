@@ -10,12 +10,34 @@
  * This service is used to interact with the soil data in the database and perform operations related to soil management.
  *
  * @requires ../../db/models/Soil
- * @exports { saveSoil }
+ * @exports { getSoilById, saveSoil }
  */
 
 // Custom module imports
-const { SOIL_PH_TYPE, SOIL_DRAINAGE } = require("../../constants/soil-constant");
+const { SOIL_PH_TYPE } = require("../../constants/soil-constant");
 const Soil = require("../../db/models/Soil");
+
+/**
+ * @function getSoilById
+ * 
+ * @description Fetches a soil by its ID from the PostgreSQL database using Sequelize.
+ * This function retrieves a soil entry based on the provided soil ID.
+ * If the soil exists, it returns the soil object; otherwise, it returns null.
+ * 
+ * @param {number} soilId - The ID of the soil to be fetched.
+ * @returns {Promise<Object>} - The soil object if found, or null if not found
+ * @throws {Error} - Throws an error if the fetch operation fails.
+ */
+const getSoilById = async (soilId) => {
+    try {
+        const soil = await Soil.findByPk(soilId);
+        // If soil exists, return it as a plain object or null if it doesn't exist
+        return soil ? soil.toJSON() : null
+    } catch (error) {
+        console.error("Error fetching soil by ID: ", error?.message || error);
+        throw new Error("Failed to fetch soil by ID");
+    }
+};
 
 /**
  * @function saveSoil
@@ -45,4 +67,4 @@ const saveSoil = async (soilDetails) => {
 };
 
 // Export the service functions to use in the controllers
-module.exports = { saveSoil };
+module.exports = { getSoilById, saveSoil };

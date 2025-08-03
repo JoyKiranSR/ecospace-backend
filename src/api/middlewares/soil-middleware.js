@@ -118,16 +118,19 @@ const createSoilValidator = [
 
   body("ph_min")
     .optional()
+    .trim()
     .isFloat({ min: 0, max: 14 }).withMessage("ph_min must be between 0 and 14").bail()
     .custom((value, { req }) => {
       if (req.body.ph_max && value > req.body.ph_max) {
         throw new Error("ph_min must be less than or equal to ph_max");
       }
       return true;
-    }),
+    })
+    .toFloat(),
 
   body("ph_max")
     .optional()
+    .trim()
     .isFloat({ min: 0, max: 14 }).withMessage("ph_max must be between 0 and 14").bail()
     .custom((value, { req }) => {
       if (req.body.ph_min && value < req.body.ph_min) {
@@ -135,6 +138,7 @@ const createSoilValidator = [
       }
       return true;
     })
+    .toFloat()
 ];
 
 const soilValidator = () => {

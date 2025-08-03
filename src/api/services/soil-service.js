@@ -58,7 +58,7 @@ const getAllSoils = async (pagination, sorting, filters) => {
         // Set extra metadata for pagination on special cases
         const hasExceededPage = page > totalPages; // if the requested page exceeds total pages
         const maxLimitApplied = limit === 50; // if the limit is set to maximum
-        if (hasExceededPage) paginationMetadata = { ...paginationMetadata, hasExceededPage };
+        if (count && hasExceededPage) paginationMetadata = { ...paginationMetadata, hasExceededPage };
         if (maxLimitApplied) paginationMetadata = { ...paginationMetadata, maxLimitApplied };
         console.debug("Fetched %d soils with pagination: %j", rows.length, paginationMetadata);
 

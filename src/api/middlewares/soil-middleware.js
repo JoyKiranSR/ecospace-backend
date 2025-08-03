@@ -2,7 +2,7 @@
 
 const { body } = require("express-validator");
 const { SOIL_DRAINAGE, SOIL_NUTRIENT_LEVEL, SOIL_ORGANIC_MATTER_LEVEL, SOIL_TEXTURE,
-  SOIL_TYPE, SOIL_WATER_RETENTION } = require("../../constants/soil-constant");
+  SOIL_TYPE, SOIL_WATER_RETENTION_LEVEL} = require("../../constants/soil-constant");
 const { toArrayOfVals } = require("../../utils/common");
 
 /**
@@ -37,7 +37,7 @@ const createSoilValidator = [
    * texture: string
    * type: string
    * texture: string
-   * water_retention: string
+   * water_retention_level: string
    * 
    * Validations: Optional fields
    * color: string
@@ -51,7 +51,7 @@ const createSoilValidator = [
    * organic_matter_level: SOIL_ORGANIC_MATTER_LEVEL
    * texture: SOIL_TEXTURE
    * type: SOIL_TYPE
-   * water_retention: SOIL_WATER_RETENTION
+   * water_retention_level: SOIL_WATER_RETENTION_LEVEL
    */
 
   // Required fields
@@ -96,12 +96,12 @@ const createSoilValidator = [
     .trim().toLowerCase()
     .isIn(toArrayOfVals(SOIL_TYPE)).withMessage(`type must be one of ${toArrayOfVals(SOIL_TYPE, true)}`),
 
-  body("water_retention")
+  body("water_retention_level")
     .trim()
-    .notEmpty().withMessage("water_retention is required").bail()
-    .isString().withMessage("water_retention must be a string").bail()
+    .notEmpty().withMessage("water_retention_level is required").bail()
+    .isString().withMessage("water_retention_level must be a string").bail()
     .trim().toLowerCase()
-    .isIn(toArrayOfVals(SOIL_WATER_RETENTION)).withMessage(`water_retention must be one of ${toArrayOfVals(SOIL_WATER_RETENTION, true)}`),
+    .isIn(toArrayOfVals(SOIL_WATER_RETENTION_LEVEL)).withMessage(`water_retention_level must be one of ${toArrayOfVals(SOIL_WATER_RETENTION_LEVEL, true)}`),
 
   // Optional fields
   body("color")

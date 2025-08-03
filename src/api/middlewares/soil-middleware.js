@@ -165,12 +165,16 @@ const getSoilsValidator = [
      * drainage: string (optional)
      * nutrient_level: string (optional)
      * organic_matter_level: string (optional)
+     * texture: string (optional)
+     * type: string (optional)
      * water_retention_level: string (optional)
      *
      * Allowed values for filtering:
      * drainage: SOIL_DRAINAGE
      * nutrient_level: SOIL_NUTRIENT_LEVEL
      * organic_matter_level: SOIL_ORGANIC_MATTER_LEVEL
+     * texture: SOIL_TEXTURE
+     * type: SOIL_TYPE
      * water_retention_level: SOIL_WATER_RETENTION_LEVEL
      */
     query("page")
@@ -212,6 +216,18 @@ const getSoilsValidator = [
       .isString().withMessage("organic_matter_level must be a string").bail()
       .trim().toLowerCase()
       .isIn(toArrayOfVals(SOIL_ORGANIC_MATTER_LEVEL)).withMessage(`organic_matter_level must be one of ${toArrayOfVals(SOIL_ORGANIC_MATTER_LEVEL, true)}`),
+    
+    query("texture")
+      .optional()
+      .isString().withMessage("texture must be a string").bail()
+      .trim().toLowerCase()
+      .isIn(toArrayOfVals(SOIL_TEXTURE)).withMessage(`texture must be one of ${toArrayOfVals(SOIL_TEXTURE, true)}`),
+    
+    query("type")
+      .optional()
+      .isString().withMessage("type must be a string").bail()
+      .trim().toLowerCase()
+      .isIn(toArrayOfVals(SOIL_TYPE)).withMessage(`type must be one of ${toArrayOfVals(SOIL_TYPE, true)}`),
     
     query("water_retention_level")
       .optional()

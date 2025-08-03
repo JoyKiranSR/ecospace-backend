@@ -108,13 +108,13 @@ const createSoilValidator = [
     .optional()
     .trim()
     .isString().withMessage("color must be a string")
-    .isLength({ max: 10 }).withMessage("color must be at most 10 characters long"),
+    .isLength({ max: 15 }).withMessage("color must be at most 15 characters long"),
 
   body("description")
     .optional()
     .trim()
     .isString().withMessage("description must be a string")
-    .isLength({ max: 100 }).withMessage("description must be at most 100 characters long"),
+    .isLength({ max: 255 }).withMessage("description must be at most 255 characters long"),
 
   body("ph_min")
     .optional()

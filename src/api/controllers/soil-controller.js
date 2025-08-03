@@ -17,7 +17,7 @@
 
 // Custom module imports
 const { toSnakeCaseKeys } = require("../../utils/common");
-const { getSoilById, saveSoil } = require("../services/soil-service");
+const { getSoilById, saveSoil, getAllSoils } = require("../services/soil-service");
 
 /**
  * @function createSoil
@@ -60,6 +60,76 @@ const createSoil = async (req, res) => {
     }
 };
 
+const fetchAllSoils = async (req, res) => {
+    // Extract pagination, sorting, and filters from the request query
+    let { drainage, limit, nutrient_level: nutrientLevel, organic_matter_level: organicMatterLevel,
+        page, sort_by: sortBy, sort_order: sortOrder, texture, type,
+        water_retention_level: waterRetentionLevel } = req.sanitizedQuery ?? req.query;
+    const DEFAULT_LIMIT = 10, MAX_LIMIT = 50, DEFAULT_PAGE = 1 ; // Default pagination values
+    const SORT_PARAMS = ["name", "createdAt"], DEFAULT_SORT_BY = "createdAt", DEFAULT_SORT_ORDER = "asc"; // Default sorting values
+    /** 
+     * Validations: Pagination
+     *
+     * If limit and page are provided, use them to paginate results else use default values
+     * limit: Maximum number of plants to return per page
+     * page: Current page number for pagination
+     *
+     * Ensure limit is at least 1 and page is at least 1
+     * Also ensure max limit is 50
+     * This prevents excessive load on the server and ensures reasonable pagination
+     * If limit or page is not provided, use default values
+     * Default limit is 10 and default page is 1
+     *
+     * Note: Here validations are just incase you miss express validations to apply as middleware in routes
+     * so that you can still use this controller handler function without any issues, so that the 
+     * below validations comes in handy.
+     */
+    limit = Math.min(MAX_LIMIT, Math.max(DEFAULT_LIMIT, parseInt(limit, 10) || DEFAULT_LIMIT));
+    page = Math.max(DEFAULT_PAGE, parseInt(page, 10) || DEFAULT_PAGE);
+
+    /**
+     * Validations: Sorting
+     *
+     * If sortBy and sortOrder are provided, use them to sort results else use default values
+     * sortBy: Field to sort by (default is createdAt)
+     * sortOrder: Order to sort by (default is asc)
+     * Ensure sortBy is one of the allowed fields and sortOrder is either asc or desc
+     *
+     * Note: Here validations are just incase you miss express validations to apply as middleware in routes
+     * so that you can still use this controller handler function without any issues, so that the 
+     * below validations comes in handy.
+     */
+    if (!sortBy || (sortBy && !SORT_PARAMS.includes(sortBy))) sortBy = DEFAULT_SORT_BY;
+    if (!sortOrder || (sortOrder && !["asc", "desc"].includes(String(sortOrder).toLowerCase()))) sortOrder = DEFAULT_SORT_ORDER;
+
+    /**
+     * Filtering
+     *
+     * If filter parameters are provided, use them to filter results
+     * drainage
+     * nutrient_level
+     * organic_matter_level
+     * texture
+     * type
+     * water_retention_level
+     */
+    let filters = {};
+    if (drainage) filters.drainage = drainage;
+    if (nutrientLevel) filters.nutrientLevel = nutrientLevel;
+    if (organicMatterLevel) filters.organicMatterLevel = organicMatterLevel;
+    if (texture) filters.texture = texture;
+    if (type) filters.type = type;
+    if (waterRetentionLevel) filters.waterRetentionLevel = waterRetentionLevel;
+
+    // Try to fetch all soils with pagination, sorting and filtering
+    try {
+        const result = await getAllSoils({ limit, page }, { sortBy, sortOrder }, filters);
+        return res.status(200).json({ ...toSnakeCaseKeys(result), message: "Retrieved all soils successfully" })
+    } catch (error) {
+        return res.status(500).json({ message: error.message }); 
+    }
+};
+
 /**
  * @function fetchSoilById
  * @get /soils/:id
@@ -92,4 +162,4 @@ const fetchSoilById = async (req, res) => {
 };
 
 // Export the controller handler functions to use in the routes
-module.exports = { createSoil, fetchSoilById };
+module.exports = { createSoil, fetchAllSoils, fetchSoilById };

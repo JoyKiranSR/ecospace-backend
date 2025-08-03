@@ -73,7 +73,7 @@ const Soil = sequelize.define("Soil", {
         primaryKey: true,
     },
     color: {
-        type: DataTypes.STRING(20), // Limit to 20 characters
+        type: DataTypes.STRING(15), // Limit to 15 characters
         allowNull: true, // Optional field
     },
     description: {
@@ -85,7 +85,7 @@ const Soil = sequelize.define("Soil", {
         allowNull: false, // Required field
     },
     name: {
-        type: DataTypes.STRING(50), // Limit to 50 characters
+        type: DataTypes.STRING(20), // Limit to 20 characters
         unique: true, // Ensure soil names are unique
         allowNull: false, // Required field
     },

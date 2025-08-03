@@ -34,7 +34,7 @@ const validationErrorHandler = (req, res, next) => {
     // Add sanitized query parameters to request object
     // NOTE: From express 5, req.query is immutable
     req.sanitizedQuery = matchedData(req, { locations: ["query"] });
-    console.debug(req.sanitizedQuery);
+    req.query.length && console.debug(req.sanitizedQuery);
     next();
 }
 

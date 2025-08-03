@@ -17,7 +17,7 @@
 
 // Custom module imports
 const { toSnakeCaseKeys } = require("../../utils/common");
-const { saveSoil } = require("../services/soil-service");
+const { getSoilById, saveSoil } = require("../services/soil-service");
 
 /**
  * @function createSoil
@@ -60,5 +60,36 @@ const createSoil = async (req, res) => {
     }
 };
 
+/**
+ * @function fetchSoilById
+ * @get /soils/:id
+ * 
+ * @description Handles fetching a soil by its ID.
+ * This function extracts the soil ID from the request parameters, calls the soil service
+ * to fetch the soil details from the database, and returns the soil object in the response.
+ * If the soil is not found, it returns a 404 status code with a "Soil not found" message.
+ * 
+ * @param {Object} req - The request object containing the soil ID in the parameters.
+ * @param {Object} res - The response object used to send the response back to the client.
+ * @returns {Object} - Returns a JSON response with the soil object if found, or
+ * a 404 status code with a "Soil not found" message if the soil does not exist.
+ * @throws {Error} - Throws an error if the fetch operation fails, returning a 500 status code with an error message.
+ */
+const fetchSoilById = async (req, res) => {
+    // Extract the soil ID from the request parameters
+    const { soil_id: soilId } = req.params;
+    // Try to fetch the soil by ID using the service
+    try {
+        // Fetch the soil by ID using the service
+        const soil = await getSoilById(soilId);
+        const message = soil ? "Soil fetched successfully" : "Soil not found";
+        const statusCode = soil ? 200 : 404;
+        return res.status(statusCode).json({ data: toSnakeCaseKeys(soil), message });
+    } catch (error) {
+        console.error("Error fetching soil by ID:", error);
+        return res.status(500).json({ message: error.message });
+    }
+};
+
 // Export the controller handler functions to use in the routes
-module.exports = { createSoil };
+module.exports = { createSoil, fetchSoilById };

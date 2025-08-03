@@ -16,6 +16,7 @@
 const { Router } = require("express");
 const { soilValidator } = require("../middlewares/soil-middleware");
 const { validationErrorHandler } = require("../middlewares/error-middleware");
+const { createSoil } = require("../controllers/soil-controller");
 
 // Initialize the router
 const routes = Router();
@@ -30,10 +31,7 @@ routes.all("/", (req, res, next) => {
     }
     next();
 });
-routes.post("/", validator.create(), validationErrorHandler, (_req, res) => {
-    // Placeholder for creating soil
-    res.status(201).json({ message: "Soil created successfully" });
-});
+routes.post("/", validator.create(), validationErrorHandler, createSoil);
 
 // Export the routes for use in the main application
 module.exports = routes;

@@ -8,7 +8,7 @@
  * 
  * @requires none
  * @exports {SOIL_DRAINAGE, SOIL_NUTRIENT_LEVEL, SOIL_ORGANIC_MATTER_LEVEL, SOIL_PH_TYPE,
- * SOIL_TEXTURE, SOIL_TYPE, SOIL_WATER_RETENTION}
+ * SOIL_TEXTURE, SOIL_TYPE, SOIL_WATER_RETENTION_LEVEL}
  */
 
 /**
@@ -149,9 +149,9 @@ const SOIL_TYPE = Object.freeze({
 
 
 /**
- * @constant SOIL_WATER_RETENTION
+ * @constant SOIL_WATER_RETENTION_LEVEL
  *
- * @description Defines the water retention characteristics of soil.
+ * @description Defines the water retention levels of soil.
  * It includes various retention types such as high, low, and moderate.
  * This categorization helps in understanding how much water soil can hold, which can influence irrigation practices and plant growth.
  * It is useful for agriculture, gardening, and ecological studies.
@@ -162,7 +162,7 @@ const SOIL_TYPE = Object.freeze({
  * @property {string} LOW - Represents soil that retains little water.
  * @property {string} MODERATE - Represents soil that retains a moderate amount of water.
  */
-const SOIL_WATER_RETENTION = Object.freeze({
+const SOIL_WATER_RETENTION_LEVEL = Object.freeze({
     HIGH: "high", // Soil that retains a lot of water
     LOW: "low", // Soil that retains little water
     MODERATE: "moderate", // Soil that retains a moderate amount of water
@@ -175,5 +175,5 @@ module.exports = {
     SOIL_PH_TYPE,
     SOIL_TEXTURE,
     SOIL_TYPE,
-    SOIL_WATER_RETENTION
+    SOIL_WATER_RETENTION_LEVEL
 };

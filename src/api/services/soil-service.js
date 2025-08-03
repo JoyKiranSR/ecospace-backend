@@ -18,6 +18,60 @@ const { SOIL_PH_TYPE } = require("../../constants/soil-constant");
 const Soil = require("../../db/models/Soil");
 
 /**
+ * @function getAllSoils
+ * 
+ * @description Fetches all soils from the PostgreSQL database using Sequelize.
+ * This function retrieves all soil entries with pagination, sorting, and filtering options.
+ * It returns an array of soil objects along with pagination metadata.
+ * 
+ * @param {Object} pagination - An object containing pagination parameters: limit and page.
+ * @param {number} pagination.limit - The maximum number of plants to return.
+ * @param {number} pagination.page - The current page number for pagination.
+ * @param {Object} sorting - An object containing sorting parameters: sortBy and sortOrder.
+ * @param {string} sorting.sortBy - The field to sort by (e.g., 'name').
+ * @param {string} sorting.sortOrder - The order of sorting (e.g., 'asc' or 'desc').
+ * @param {Object} filters - An object containing filtering parameters for soil properties.
+ * @returns {Promise<Object>} - An object containing an array of soil objects and pagination metadata.
+ * @throws {Error} - Throws an error if the fetch operation fails.
+ */
+const getAllSoils = async (pagination, sorting, filters) => {
+    try {
+        const { limit, page } = pagination;
+        const { sortBy, sortOrder } = sorting;
+        // NOTE: Adding filters directly as exact match as they are enums
+        console.debug("Fetching all soils with filters: %j", filters);
+
+        const offset = (page -1) * limit;
+        // Fetch all soils with pagination, sorting, and filtering
+        const { count, rows } = await Soil.findAndCountAll({
+            limit, offset, order: [[sortBy, sortOrder]], where: filters
+        });
+
+        // Set pagination metadata
+        const pageSize = limit;
+        const totalPages = Math.ceil(count / pageSize);
+        const hasPreviousPage = page < totalPages && page > 1;
+        const hasNextPage = page < totalPages;
+        let paginationMetadata = { currentPage: page, hasPreviousPage, hasNextPage, pageSize,
+            totalItems: count, totalPages };
+        
+        // Set extra metadata for pagination on special cases
+        const hasExceededPage = page > totalPages; // if the requested page exceeds total pages
+        const maxLimitApplied = limit === 50; // if the limit is set to maximum
+        if (hasExceededPage) paginationMetadata = { ...paginationMetadata, hasExceededPage };
+        if (maxLimitApplied) paginationMetadata = { ...paginationMetadata, maxLimitApplied };
+        console.debug("Fetched %d soils with pagination: %j", rows.length, paginationMetadata);
+
+        const data = rows.map(row => row.toJSON()); // Convert Sequelize instances to plain objects
+        // Return the soils and pagination metadata
+        return { data, pagination: paginationMetadata };
+    } catch (error) {
+        console.error("Error fetching all soils: ", error?.message || error);
+        throw new Error("Failed to fetch soils");
+    }
+};
+
+/**
  * @function getSoilById
  * 
  * @description Fetches a soil by its ID from the PostgreSQL database using Sequelize.
@@ -67,4 +121,4 @@ const saveSoil = async (soilDetails) => {
 };
 
 // Export the service functions to use in the controllers
-module.exports = { getSoilById, saveSoil };
+module.exports = { getAllSoils, getSoilById, saveSoil };

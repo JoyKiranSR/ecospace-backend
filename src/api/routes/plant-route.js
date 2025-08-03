@@ -19,6 +19,7 @@
 const { Router } = require("express");
 // Custom module imports
 const { plantValidator } = require("../middlewares/plant-middleware");
+const { validationErrorHandler } = require("../middlewares/error-middleware");
 const { createPlant, deletePlantById, fetchAllPlants, fetchPlantById,
     updatePlantDetailsById } = require("../controllers/plant-controller");
 
@@ -35,8 +36,8 @@ routes.all("/", (req, res, next) => {
     }
     next();
 });
-routes.post("/", validator.create(), validator.errorHandler, createPlant);
-routes.get("/", validator.get(), validator.errorHandler, fetchAllPlants);
+routes.post("/", validator.create(), validationErrorHandler, createPlant);
+routes.get("/", validator.get(), validationErrorHandler, fetchAllPlants);
 routes.all("/:plantId", (req, res, next) => {
     if (!["GET", "DELETE", "PATCH"].includes(req.method)) {
         console.warn(`Method ${req.method} not allowed on /plants`);
@@ -45,9 +46,9 @@ routes.all("/:plantId", (req, res, next) => {
     }
     next();
 });
-routes.get("/:plantId", validator.id(), validator.errorHandler, fetchPlantById);
-routes.patch("/:plantId", validator.id(), validator.patchOne(), validator.errorHandler, updatePlantDetailsById);
-routes.delete("/:plantId", validator.id(), validator.errorHandler, deletePlantById);
+routes.get("/:plantId", validator.id(), validationErrorHandler, fetchPlantById);
+routes.patch("/:plantId", validator.id(), validator.patchOne(), validationErrorHandler, updatePlantDetailsById);
+routes.delete("/:plantId", validator.id(), validationErrorHandler, deletePlantById);
 
 
 // Export the routes for use in the main application

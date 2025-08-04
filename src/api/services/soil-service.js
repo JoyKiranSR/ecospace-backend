@@ -18,6 +18,26 @@ const { SOIL_PH_TYPE } = require("../../constants/soil-constant");
 const Soil = require("../../db/models/Soil");
 
 /**
+ * @function removeSoil
+ * 
+ * @description Removes a soil details from the PostgreSQL database using Sequelize.
+ * This function retrieves a soil entry based on the provided soil ID.
+ * If the soil exists, removes it (permanent); otherwise, it returns null.
+ * @param {string} soilId - The ID of the soil to be fetched.
+ * @returns {Promise<null>}
+ * @throws {Error} - Throws an error if the remove operation fails.
+ */
+const removeSoil = async (soilId) => {
+    // Try to remove soil from DB
+    try {
+        await Soil.destroy({ where: { id: soilId } })
+    } catch (error) {
+        console.error("Error removing soil: ", error?.message || error);
+        throw new Error("Failed to remove soil");  
+    }
+};
+
+/**
  * @function getAllSoils
  * 
  * @description Fetches all soils from the PostgreSQL database using Sequelize.
@@ -173,4 +193,4 @@ const updateSoilDetails = async (soilId, soilDetails) => {
 };
 
 // Export the service functions to use in the controllers
-module.exports = { getAllSoils, getSoilById, saveSoil, updateSoilDetails };
+module.exports = { getAllSoils, getSoilById, saveSoil, removeSoil, updateSoilDetails };

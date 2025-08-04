@@ -237,6 +237,71 @@ const getSoilsValidator = [
 ];
 
 /**
+ * @constant patchUpdateSoilValidator
+ *
+ * @description Validation rules for updating a soil.
+ * It checks for fields like color, description, name, ph_min, ph_max
+ *
+ * It ensures that these fields, if provided, are valid and formatted correctly.
+ *
+ * @type {ValidationChain[]}
+ */
+const patchUpdateSoilValidator = [
+    /**
+     * validations: Optional values
+     *
+     * color: string
+     * description: string
+     * name: sring
+     * ph_min: number
+     * ph_max: number
+     */
+
+    body("color")
+      .optional()
+      .trim()
+      .isString().withMessage("color must be a string")
+      .isLength({ max: 15 }).withMessage("color must be at most 15 characters long"),
+
+    body("description")
+      .optional()
+      .trim()
+      .isString().withMessage("description must be a string")
+      .isLength({ max: 255 }).withMessage("description must be at most 255 characters long"),
+
+    body("name")
+      .optional()
+      .trim()
+      .notEmpty().withMessage("name is required").bail()
+      .isString().withMessage("name must be a string")
+      .isLength({ max: 20 }).withMessage("name must be at most 20 characters long"),
+
+    body("ph_min")
+      .optional()
+      .trim()
+      .isFloat({ min: 0, max: 14 }).withMessage("ph_min must be between 0 and 14").bail()
+      .custom((value, { req }) => {
+        if (req.body.ph_max && value > req.body.ph_max) {
+          throw new Error("ph_min must be less than or equal to ph_max");
+        }
+        return true;
+      })
+      .toFloat(),
+
+  body("ph_max")
+    .optional()
+    .trim()
+    .isFloat({ min: 0, max: 14 }).withMessage("ph_max must be between 0 and 14").bail()
+    .custom((value, { req }) => {
+      if (req.body.ph_min && value < req.body.ph_min) {
+        throw new Error("ph_max must be greater than or equal to ph_min");
+      }
+      return true;
+    })
+    .toFloat()
+];
+
+/**
  * @constant idValidator
  * 
  * @description Validation rules for soil ID.
@@ -248,7 +313,7 @@ const idValidator = [
     /**
      * Validations: Required path parameter
      * 
-     * soil_id: integer
+     * soil_id: string (UUID)
      */
     param("soil_id")
       .exists().withMessage("soil_id is required").bail()
@@ -288,6 +353,16 @@ const soilValidator = () => {
      * @returns {ValidationChain[]} - An array of validation chains for fetching all soils.
      */
     get: () => getSoilsValidator,
+
+    /**
+     * @function patchOne
+     *
+     * @description Method to validate the request body for updating a soil.
+     * It uses the patchUpdateSoilValidator defined above to ensure optional fields are valid.
+     *
+     * @returns {ValidationChain[]} - An array of validation chains for updating a soil.
+     */
+    patchOne: () => patchUpdateSoilValidator
   }
 };
 

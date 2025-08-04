@@ -18,6 +18,26 @@ const { SOIL_PH_TYPE } = require("../../constants/soil-constant");
 const Soil = require("../../db/models/Soil");
 
 /**
+ * @function removeSoil
+ * 
+ * @description Removes a soil details from the PostgreSQL database using Sequelize.
+ * This function retrieves a soil entry based on the provided soil ID.
+ * If the soil exists, removes it (permanent); otherwise, it returns null.
+ * @param {string} soilId - The ID of the soil.
+ * @returns {Promise<null>}
+ * @throws {Error} - Throws an error if the remove operation fails.
+ */
+const removeSoil = async (soilId) => {
+    // Try to remove soil from DB
+    try {
+        await Soil.destroy({ where: { id: soilId } })
+    } catch (error) {
+        console.error("Error removing soil: ", error?.message || error);
+        throw new Error("Failed to remove soil");  
+    }
+};
+
+/**
  * @function getAllSoils
  * 
  * @description Fetches all soils from the PostgreSQL database using Sequelize.
@@ -78,7 +98,7 @@ const getAllSoils = async (pagination, sorting, filters) => {
  * This function retrieves a soil entry based on the provided soil ID.
  * If the soil exists, it returns the soil object; otherwise, it returns null.
  * 
- * @param {number} soilId - The ID of the soil to be fetched.
+ * @param {string} soilId - The ID of the soil.
  * @returns {Promise<Object>} - The soil object if found, or null if not found
  * @throws {Error} - Throws an error if the fetch operation fails.
  */
@@ -120,5 +140,57 @@ const saveSoil = async (soilDetails) => {
     }
 };
 
+/**
+ * @function updateSoilDetails
+ *
+ * @description Updates a soil by its ID from the PostgreSQL database using Sequelize.
+ *
+ * @param {string} soilId - The ID of the soil.
+ * @param {Object} soilDetails - The details of the soil which needs to be updated.
+ * @returns {Promise<Object|null>} - The updated soil object if soil found and update successful,
+ * else if soil not found, returns null
+ * @throws {Error} - Throws an error if the update operation fails.
+ *
+ * Note: This function wont guarantee soil presence in DB for update operation, so careful to use this
+ * function with proper validations on object to be updated.
+ */
+const updateSoilDetails = async (soilId, soilDetails) => {
+    try {
+        // Get soil details by id
+        const soil = await Soil.findByPk(soilId);
+        if (!soil) return null;
+        // Destructure to get ph specific values (if any) which needs to be updated
+        const { phMax, phMin } = soilDetails;
+        // Destructure ph values from saved soil details
+        const { ph_max: phMaxDb, ph_min: phMinDb } = soil.toJSON();
+        /**
+         * Validation for ph_min and ph_max
+         * Always ph_min < ph_max
+         * Comparion wrt previously saved DB values
+         */
+        if ((phMaxDb && phMinDb) || (!phMaxDb && !phMinDb && phMax && phMin)) {
+            let errorMessage;
+            if ((phMin && !phMax && (phMin > phMaxDb)) || (phMax && phMin && (phMin > phMax))) {
+                errorMessage = "ph_min is greater than ph_max";
+                console.error(errorMessage)
+                throw new Error(errorMessage);
+            }
+            if ((phMax && !phMin && (phMax < phMinDb)) || (phMax && phMin && (phMax < phMin))) {
+                errorMessage = "ph_max is lesser than ph_min";
+                console.error(errorMessage)
+                throw new Error(errorMessage);
+            }
+            // Here, we need to update ph_type based on newly given ph values
+            soilDetails.phType = phMax > 7 ? SOIL_PH_TYPE.ALKALINE : phMin < 7 ? SOIL_PH_TYPE.ACIDIC : SOIL_PH_TYPE.NEUTRAL;
+            console.log("ph_type based on new ph values: ", soilDetails.phType);
+        }
+        const [ updatedCount, updatedRows ] = await Soil.update(soilDetails, { where: { id: soilId }, returning: true });
+        return updatedCount ? updatedRows[0].toJSON() : null; // toJSON converts the Sequelize instance to a plain object
+    } catch (error) {
+        console.error("Error updating soil: ", error?.message || error);
+        throw new Error("Failed to update soil");  
+    }
+};
+
 // Export the service functions to use in the controllers
-module.exports = { getAllSoils, getSoilById, saveSoil };
+module.exports = { getAllSoils, getSoilById, saveSoil, removeSoil, updateSoilDetails };

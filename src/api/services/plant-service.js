@@ -70,17 +70,18 @@ const getAllPlants = async (pagination, sorting, filters) => {
         const totalPages = Math.ceil(count / pageSize);
         const hasPreviousPage = page > 1;
         const hasNextPage = page < totalPages;
-        let paginationMetadata = { currentPage: page, hasNextPage, hasPreviousPage, pageSize, totalItems: count, totalPages };
+        let paginationMetadata = { currentPage: page, hasNextPage, hasPreviousPage, pageSize,
+            totalItems: count, totalPages };
 
         // Set extra metadata for pagination on special cases
         const hasExceededPage = page > totalPages; // if the requested page exceeds total pages
         const maxLimitApplied = limit === 100; // if the limit is set to maximum allowed (100)
-        if (hasExceededPage) paginationMetadata = { ...paginationMetadata, hasExceededPage};
-        if (!hasExceededPage && maxLimitApplied) paginationMetadata = { ...paginationMetadata, maxLimitApplied };
+        if (count && hasExceededPage) paginationMetadata = { ...paginationMetadata, hasExceededPage};
+        if (maxLimitApplied) paginationMetadata = { ...paginationMetadata, maxLimitApplied };
         console.debug("Fetched %d plants with pagination: %j", rows.length, paginationMetadata);
         
         const data = rows.map(row => row.toJSON()); // Convert Sequelize instances to plain objects
-        // Return the rows and pagination metadata
+        // Return plants and pagination metadata
         return { data, pagination: paginationMetadata };
     } catch (error) {
         console.error("Error fetching all plants: ", error?.message || error);

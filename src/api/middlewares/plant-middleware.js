@@ -12,7 +12,7 @@
  */
 
 // Core module imports
-const { body, matchedData, param, query, validationResult } = require("express-validator");
+const { body, param, query } = require("express-validator");
 // Custom module imports
 const { PLANT_CATEGORY, PLANT_GROWTH_CYCLE, PLANT_GROWTH_HABIT, PLANT_PURPOSE, PLANT_GROWTH_STAGE } = require('../../constants/plant-constant');
 const { SEASON } = require('../../constants/season-constant');
@@ -167,6 +167,15 @@ const idValidator = [
       .trim()
 ];
 
+/**
+ * @constant getPlantsValidator
+ *
+ * @description Validation rules for fetching all plants.
+ * It checks for optional query parameters like page, limit, sort_by, sort_order, and various filters.
+ * It ensures that pagination, sorting, and filtering parameters are valid.
+ *
+ * @type {ValidationChain[]}
+ */
 const getPlantsValidator = [
     /**
      * Validations: query parameters
@@ -248,6 +257,17 @@ const getPlantsValidator = [
       .isIn(toArrayOfVals(PLANT_PURPOSE)).withMessage(`purpose must be one of ${toArrayOfVals(PLANT_PURPOSE, true)}`),
 ];
 
+/**
+ * @constant patchUpdatePlantValidator
+ *
+ * @description Validation rules for updating a plant.
+ * It checks for optional fields like common_names, common_pests, compatible_plants, recommended_fertilizers,
+ * region_compatibility, scientific_name, and tags.
+ *
+ * It ensures that these fields, if provided, are valid and formatted correctly.
+ *
+ * @type {ValidationChain[]}
+ */
 const patchUpdatePlantValidator = [
     /**
      * validations: Optional values
@@ -278,8 +298,8 @@ const patchUpdatePlantValidator = [
 /**
  * @function plantValidator
  * 
- * @description Factory function that returns an object containing validation methods for creating a plant,
- * error handling middleware, and validation for plant ID.
+ * @description Factory function that returns an object containing validation methods for creating a plant, fetching all plants,
+ * validating plant ID, and updating a plant.
  * 
  * @returns {Object} - An object containing the validation methods and error handler.
  * 
@@ -297,28 +317,13 @@ const plantValidator = () => {
          */
         create: () => createPlantValidator,
         /**
-         * @function errorHandler
+         * @function get
          * 
-         * @description Middleware function to handle validation errors in the request.
-         * It checks for validation errors and sanitizes the request query parameters.
-         * If there are validation errors, it returns a 400 status with an error message.
-         * 
-         * @param {Object} req - The request object containing the query parameters.
-         * @param {Object} res - The response object used to send the response back to the client.
-         * @param {Function} next - The next middleware function to call if validation passes.
-         * @return {void} - Calls next() if validation passes, or returns a 400 status with an error message if validation fails.
+         * @description Method to validate the request query parameters for fetching all plants.
+         * It uses the getPlantsValidator defined above to ensure pagination, sorting, and filtering parameters are valid.
+         *
+         * @returns {ValidationChain[]} - An array of validation chains for fetching all plants.
          */
-        errorHandler: (req, res, next) => {
-            const result = validationResult(req)
-            const errors = result.array().map(({ msg, path }) => ({ field: path, message: msg }));
-            if (!result.isEmpty()) return res.status(400).json({ message: "Validation error", errors });
-            // Add sanitized query parameters to request object
-            // NOTE: From express 5, req.query is immutable
-            req.sanitizedQuery = matchedData(req, { locations: ["query"] });
-            console.debug(req.sanitizedQuery);
-            next();
-        },
-
         get: () => getPlantsValidator,
         /**
          * @function id
@@ -329,7 +334,14 @@ const plantValidator = () => {
          * @returns {ValidationChain[]} - An array of validation chains for the plant ID.
          */
         id: () => idValidator,
-
+        /**
+         * @function patchOne
+         *
+         * @description Method to validate the request body for updating a plant.
+         * It uses the patchUpdatePlantValidator defined above to ensure optional fields are valid.
+         *
+         * @returns {ValidationChain[]} - An array of validation chains for updating a plant.
+         */
         patchOne: () => patchUpdatePlantValidator,
     };
 };

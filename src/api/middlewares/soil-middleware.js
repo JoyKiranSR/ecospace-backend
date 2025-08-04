@@ -313,7 +313,7 @@ const idValidator = [
     /**
      * Validations: Required path parameter
      * 
-     * soil_id: integer
+     * soil_id: string (UUID)
      */
     param("soil_id")
       .exists().withMessage("soil_id is required").bail()

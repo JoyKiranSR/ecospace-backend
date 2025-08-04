@@ -23,7 +23,7 @@ const Soil = require("../../db/models/Soil");
  * @description Removes a soil details from the PostgreSQL database using Sequelize.
  * This function retrieves a soil entry based on the provided soil ID.
  * If the soil exists, removes it (permanent); otherwise, it returns null.
- * @param {string} soilId - The ID of the soil to be fetched.
+ * @param {string} soilId - The ID of the soil.
  * @returns {Promise<null>}
  * @throws {Error} - Throws an error if the remove operation fails.
  */
@@ -98,7 +98,7 @@ const getAllSoils = async (pagination, sorting, filters) => {
  * This function retrieves a soil entry based on the provided soil ID.
  * If the soil exists, it returns the soil object; otherwise, it returns null.
  * 
- * @param {number} soilId - The ID of the soil to be fetched.
+ * @param {string} soilId - The ID of the soil.
  * @returns {Promise<Object>} - The soil object if found, or null if not found
  * @throws {Error} - Throws an error if the fetch operation fails.
  */
@@ -141,11 +141,11 @@ const saveSoil = async (soilDetails) => {
 };
 
 /**
- * @function updateDetails
+ * @function updateSoilDetails
  *
  * @description Updates a soil by its ID from the PostgreSQL database using Sequelize.
  *
- * @param {number} soilId - The ID of the soil to retrieve.
+ * @param {string} soilId - The ID of the soil.
  * @param {Object} soilDetails - The details of the soil which needs to be updated.
  * @returns {Promise<Object|null>} - The updated soil object if soil found and update successful,
  * else if soil not found, returns null

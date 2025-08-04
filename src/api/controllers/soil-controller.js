@@ -22,12 +22,12 @@ const { getSoilById, saveSoil, getAllSoils, removeSoil, updateSoilDetails } = re
 /**
  * @function createSoil
  * @post /soils
- * 
+ *
  * @description Handles the creation of a new soil entry.
  * This function processes the request body to extract soil details,
  * validates the required fields, and calls the soil service to save the soil details to the database
  * and returns the saved soil object in the response.
- * 
+ *
  * @param {Object} req - The request object containing the soil details in the body.
  * @param {Object} res - The response object used to send the response back to the client.
  * @returns {Object} - Returns a JSON response with the saved soil object and a success message.
@@ -63,12 +63,13 @@ const createSoil = async (req, res) => {
 /**
  * @function deleteSoilById
  * @delete /soils/:soil_id
+ *
  * @description Handles the deletion of a soil by its ID.
  * It checks if the soil exists in the database and deletes it (hard delete).
  * If the soil is not found, it returns a 404 status code with an error message.
  *
  * @param {Object} req - The request object containing the soil ID in the path parameters.
- * @param {string} req.params.soil_id - The ID of the soil to be deleted.
+ * @param {string} req.params.soil_id - The ID of the soil.
  * @param {Object} res - The response object used to send the response back to the client.
  * @returns {Object} - Returns a response with statusCode as 204,
  * or an error message with a 500 status code if the deletion fails.
@@ -159,14 +160,15 @@ const fetchAllSoils = async (req, res) => {
 
 /**
  * @function fetchSoilById
- * @get /soils/:id
- * 
+ * @get /soils/:soil_id
+ *
  * @description Handles fetching a soil by its ID.
  * This function extracts the soil ID from the request parameters, calls the soil service
  * to fetch the soil details from the database, and returns the soil object in the response.
  * If the soil is not found, it returns a 404 status code with a "Soil not found" message.
- * 
+ *
  * @param {Object} req - The request object containing the soil ID in the parameters.
+ * @param {string} req.params.soil_id - The ID of the soil.
  * @param {Object} res - The response object used to send the response back to the client.
  * @returns {Object} - Returns a JSON response with the soil object if found, or
  * a 404 status code with a "Soil not found" message if the soil does not exist.
@@ -190,12 +192,14 @@ const fetchSoilById = async (req, res) => {
 
 /**
  * @function updateSoilDetailsById
- * @patch
+ * @patch /soils/:soil_id
+ *
  * @description Handles the patch update of soil details by its ID.
  * It checks and updates the details of the soil in the database and returns its details.
  * If the soil is not found, it returns a 404 status code with an error message.
  *
  * @param {Object} req - The request object containing the soil details in the body.
+ * @param {string} req.params.soil_id - The ID of the soil.
  * @param {Object} res - The response object used to send the response back to the client.
  * @return {Object} - Returns a JSON response with the updated soil details and a success message if successful,
  * or null if no soil found for the given ID or an error message with a 500 status code if the updation fails.

@@ -16,7 +16,7 @@
 const { Router } = require("express");
 const { soilValidator } = require("../middlewares/soil-middleware");
 const { validationErrorHandler } = require("../middlewares/error-middleware");
-const { createSoil, fetchSoilById, fetchAllSoils, updateSoilDetailsById } = require("../controllers/soil-controller");
+const { createSoil, deleteSoilById, fetchSoilById, fetchAllSoils, updateSoilDetailsById } = require("../controllers/soil-controller");
 
 // Initialize the router
 const routes = Router();
@@ -35,6 +35,7 @@ routes.post("/", validator.create(), validationErrorHandler, createSoil);
 routes.get("/", validator.get(), validationErrorHandler, fetchAllSoils);
 routes.get("/:soil_id", validator.id(), validationErrorHandler, fetchSoilById);
 routes.patch("/:soil_id", validator.id(), validator.patchOne(), validationErrorHandler, updateSoilDetailsById);
+routes.delete("/:soil_id", validator.id(), validationErrorHandler, deleteSoilById);
 
 // Export the routes for use in the main application
 module.exports = routes;

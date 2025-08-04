@@ -17,7 +17,7 @@
 
 // Custom module imports
 const { toSnakeCaseKeys } = require("../../utils/common");
-const { getSoilById, saveSoil, getAllSoils, updateSoilDetails } = require("../services/soil-service");
+const { getSoilById, saveSoil, getAllSoils, removeSoil, updateSoilDetails } = require("../services/soil-service");
 
 /**
  * @function createSoil
@@ -59,6 +59,33 @@ const createSoil = async (req, res) => {
         return res.status(500).json({ message: error.message });
     }
 };
+
+/**
+ * @function deleteSoilById
+ * @delete /soils/:soil_id
+ * @description Handles the deletion of a soil by its ID.
+ * It checks if the soil exists in the database and deletes it (hard delete).
+ * If the soil is not found, it returns a 404 status code with an error message.
+ *
+ * @param {Object} req - The request object containing the soil ID in the path parameters.
+ * @param {string} req.params.soil_id - The ID of the soil to be deleted.
+ * @param {Object} res - The response object used to send the response back to the client.
+ * @returns {Object} - Returns a response with statusCode as 204,
+ * or an error message with a 500 status code if the deletion fails.
+ */
+const deleteSoilById = async (req, res) => {
+    const soilId = req.params["soil_id"];
+    if (!soilId) return res.status(400).json({ message: "Required ID of the soil" });
+    try {
+        const soil = await getSoilById(soilId);
+        if (!soil) return res.status(404).json({ message: "Soil not found" });
+        // Remove soil from DB
+        await removeSoil(soilId);
+        return res.status(204).end();
+    } catch (error) {
+        return res.status(500).json({ message: error.message });        
+    }
+}
 
 const fetchAllSoils = async (req, res) => {
     // Extract pagination, sorting, and filters from the request query
@@ -208,4 +235,4 @@ const updateSoilDetailsById = async (req, res) => {
 };
 
 // Export the controller handler functions to use in the routes
-module.exports = { createSoil, fetchAllSoils, fetchSoilById, updateSoilDetailsById };
+module.exports = { createSoil, deleteSoilById, fetchAllSoils, fetchSoilById, updateSoilDetailsById };

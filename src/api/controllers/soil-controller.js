@@ -17,7 +17,7 @@
 
 // Custom module imports
 const { toSnakeCaseKeys } = require("../../utils/common");
-const { getSoilById, saveSoil, getAllSoils } = require("../services/soil-service");
+const { getSoilById, saveSoil, getAllSoils, updateSoilDetails } = require("../services/soil-service");
 
 /**
  * @function createSoil
@@ -71,7 +71,7 @@ const fetchAllSoils = async (req, res) => {
      * Validations: Pagination
      *
      * If limit and page are provided, use them to paginate results else use default values
-     * limit: Maximum number of plants to return per page
+     * limit: Maximum number of soils to return per page
      * page: Current page number for pagination
      *
      * Ensure limit is at least 1 and page is at least 1
@@ -161,5 +161,51 @@ const fetchSoilById = async (req, res) => {
     }
 };
 
+/**
+ * @function updateSoilDetailsById
+ * @patch
+ * @description Handles the patch update of soil details by its ID.
+ * It checks and updates the details of the soil in the database and returns its details.
+ * If the soil is not found, it returns a 404 status code with an error message.
+ *
+ * @param {Object} req - The request object containing the soil details in the body.
+ * @param {Object} res - The response object used to send the response back to the client.
+ * @return {Object} - Returns a JSON response with the updated soil details and a success message if successful,
+ * or null if no soil found for the given ID or an error message with a 500 status code if the updation fails.
+ */
+const updateSoilDetailsById = async (req, res) => {
+    // Soil detail params that can be allowed to update
+    const updateSoilDetailparams = [ "color", "description", "name", "ph_max", "ph_min"];
+    let soilDetails = {};
+    if (!req.params["soil_id"]) return res.status(400).json({ message: "Required ID of the soil" });
+    if (!req.body) return res.status(400).json({ message: "Required body" });
+
+    const soilId = req.params["soil_id"];
+    const body = req.body;
+
+    // Check valid params for update
+    if (!Object.keys(req.body).every(param => updateSoilDetailparams.includes(param))) return res.status(400).json({ message: "No details to update" });
+    console.debug("Body received for update:", body);
+    console.debug("Path param soil_id received for update:", soilId);
+
+    // Destructure body params for update
+    const { color, description, name, ph_max: phMax, ph_min: phMin } = body;
+    // Pass details to be updated of the soil to an object
+    if (color) soilDetails.color = color;
+    if (description) soilDetails.description = description;
+    if (name) soilDetails.name = name;
+    if (phMax) soilDetails.phMax = phMax;
+    if (phMin) soilDetails.phMin = phMin;
+ 
+    // Try to update soil details
+    try {
+        const soil = await updateSoilDetails(soilId, soilDetails);
+        if (!soil) return res.status(404).json({ data: null, message: "Soil not found" });
+        return res.status(200).json({ data: toSnakeCaseKeys(soil), message: "Update successful" });
+    } catch (error) {
+        return res.status(500).json({ message: error.message });
+    }
+};
+
 // Export the controller handler functions to use in the routes
-module.exports = { createSoil, fetchAllSoils, fetchSoilById };
+module.exports = { createSoil, fetchAllSoils, fetchSoilById, updateSoilDetailsById };

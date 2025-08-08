@@ -12,12 +12,12 @@
  * 
  * @requires ../../utils/common
  * @requires ../services/growth-stage-service
- * @exports { createGrowthStage, fetchA;;GrowthStages }
+ * @exports { createGrowthStage, fetchAllGrowthStages, fetchGrowthStageById }
  */
 
 // Custom module imports
 const { toSnakeCaseKeys } = require("../../utils/common");
-const { getAllGrowthStages, saveGrowthStage } = require("../services/growth-stage-service");
+const { getAllGrowthStages, getGrowthStageById, saveGrowthStage } = require("../services/growth-stage-service");
 
 /**
  * @function createGrowthStage
@@ -53,7 +53,7 @@ const createGrowthStage = async (req, res) => {
         const growthStage = await saveGrowthStage(growthStageDetails);
         return res.status(201).json({ data: toSnakeCaseKeys(growthStage), message: 'GrowthStage created successfully' })
     } catch (error) {
-        console.error("Error creating soil:", error);
+        console.error("Error creating growth stage:", error);
         return res.status(500).json({ message: error.message });
     }
 };
@@ -84,5 +84,39 @@ const fetchAllGrowthStages = async (req, res) => {
     }
 };
 
+/**
+ * @function fetchGrowthStageById
+ * @get /growth_stages/:growth_stage_id
+ *
+ * @description Handles fetching a growth stage by its ID.
+ * This function extracts the growth stage ID from the request parameters, calls the growth stage service
+ * to fetch the growth stage details from the database, and returns the growth stage object in the response.
+ * If the growth stage is not found, it returns a 404 status code with a message.
+ *
+ * @param {Object} req - The request object containing the growth stage ID in the parameters.
+ * @param {string} req.params.growth_stage_id - The ID of the growth stage.
+ * @param {Object} res - The response object used to send the response back to the client.
+ * @returns {Object} - Returns a JSON response with the growth stage object if found, or
+ * a 404 status code with a message if the growth stage does not exist.
+ * @throws {Error} - Throws an error if the fetch operation fails, returning a 500 status code with an error message.
+ */
+const fetchGrowthStageById = async (req, res) => {
+    // Get growth stage id
+    const growthStageId = req.params["growth_stage_id"];
+    if (!growthStageId) return res.status(400).json({ message: "No growth_stage_id to fetch details" });
+
+    // Try to fetch a growth stage
+    try {
+        // Fetch the growth stage by ID using the service
+        const growthStage = await getGrowthStageById(growthStageId);
+        const message = growthStage ? "Growth stage fetched successfully" : "Growth stage not found";
+        const statusCode = growthStage ? 200 : 404;
+        return res.status(statusCode).json({ data: toSnakeCaseKeys(growthStage), message });
+    } catch (error) {
+        console.error("Error fetching growth stage by ID:", error);
+        return res.status(500).json({ message: error.message });
+    }
+};
+
 // Export the controller handler functions to use in the routes
-module.exports = { createGrowthStage, fetchAllGrowthStages };
+module.exports = { createGrowthStage, fetchAllGrowthStages, fetchGrowthStageById };

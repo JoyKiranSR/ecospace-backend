@@ -103,7 +103,6 @@ const fetchAllGrowthStages = async (req, res) => {
 const fetchGrowthStageById = async (req, res) => {
     // Get growth stage id
     const growthStageId = req.params["growth_stage_id"];
-    if (!growthStageId) return res.status(400).json({ message: "No growth_stage_id to fetch details" });
 
     // Try to fetch a growth stage
     try {

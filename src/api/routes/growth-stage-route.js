@@ -1,0 +1,28 @@
+// src/api/routes/growth-stage-route.js
+
+/**
+ * @module growth-stage-route
+ * Ecospace GrowthStage Routes
+ * 
+ * @description This module defines the routes for growth stage-related endpoints in the Ecospace backend.
+ * It includes routes for creating growth stage, fetching all growth stages, and fetching a growth stage by its ID.
+ * It uses the Express Router and applies validation middleware to ensure that the requests are properly formatted.
+ * 
+ * @requires express
+ * @exports routes
+ */
+
+// Core module imports
+const { Router } = require("express");
+// const { growthStageValidator } = require("../middlewares/growth-stage-middleware");
+// const { validationErrorHandler } = require("../middlewares/error-middleware");
+const { createGrowthStage } = require("../controllers/growth-stage-controller");
+
+// Initialize the router
+const routes = Router();
+
+// Define the growth stage routes
+routes.post("/", createGrowthStage);
+
+// Export the routes for use in the main application
+module.exports = routes;

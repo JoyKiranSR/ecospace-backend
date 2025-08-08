@@ -12,12 +12,12 @@
  * 
  * @requires ../../utils/common
  * @requires ../services/growth-stage-service
- * @exports { createGrowthStage }
+ * @exports { createGrowthStage, fetchA;;GrowthStages }
  */
 
 // Custom module imports
 const { toSnakeCaseKeys } = require("../../utils/common");
-const { saveGrowthStage } = require("../services/growth-stage-service");
+const { getAllGrowthStages, saveGrowthStage } = require("../services/growth-stage-service");
 
 /**
  * @function createGrowthStage
@@ -58,5 +58,31 @@ const createGrowthStage = async (req, res) => {
     }
 };
 
+/**
+ * @function fetchAllGrowthStages
+ * @get /growth-stages
+ * @description Handles the retrieval of all growth stages from the database.
+ * It fetches all growth stages and returns them in a JSON response with a success message.
+ * If there are no growth stages, it returns an empty array.
+ * 
+ * @param {Object} req - The request object to be processed.
+ * @param {Object} res - The response object used to send the response back to the client.
+ * @return {Object} - Returns a JSON response with the list of growth stages as data and a success message.
+ * If an error occurs, it returns a 500 status code with an error message.
+ */
+const fetchAllGrowthStages = async (req, res) => {
+    /**
+     * No pagination, sorting and filtering as we will have max of 6-7 growth stages
+     * So, will fetch all and return
+     */
+    // try to fetch all growth stages
+    try {
+        const growthStages = await getAllGrowthStages();
+        return res.status(200).json({ data: toSnakeCaseKeys(growthStages), message: "Retrieved all growth stages successfully" }) 
+    } catch (error) {
+        return res.status(500).json({ message: error.message });  
+    }
+};
+
 // Export the controller handler functions to use in the routes
-module.exports = { createGrowthStage };
+module.exports = { createGrowthStage, fetchAllGrowthStages };

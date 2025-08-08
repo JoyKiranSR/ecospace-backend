@@ -10,7 +10,7 @@
  * This service is used to interact with the growth stage data in the database and perform operations related to growth stage management.
  *
  * @requires ../../db/models/GrowthStage
- * @exports { getAllGrowthStages, saveGrowthStage }
+ * @exports { getAllGrowthStages, getGrowthStageById, saveGrowthStage }
  */
 
 // Custom module imports
@@ -31,6 +31,28 @@ const getAllGrowthStages = async () => {
     } catch (error) {
         console.error("Error fetching all growth stages: ", error?.message || error);
         throw new Error("Failed to fetch growth stages"); 
+    }
+};
+
+/**
+ * @function getGrowthStageById
+ * 
+ * @description Fetches a growth stage by its ID from the PostgreSQL database using Sequelize.
+ * This function retrieves a growth stage entry based on the provided growth stage ID.
+ * If the growth stage exists, it returns the growth stage object; otherwise, it returns null.
+ * 
+ * @param {string} growthStageId - The ID of the growth stage.
+ * @returns {Promise<Object>} - The growth stage object if found, or null if not found
+ * @throws {Error} - Throws an error if the fetch operation fails.
+ */
+const getGrowthStageById = async (growthStageId) => {
+    try {
+        const growthStage = await GrowthStage.findByPk(growthStageId);
+        // If growth stage exists, return it as a plain object or null if it doesn't exist
+        return growthStage ? growthStage.toJSON() : null;
+    } catch (error) {
+        console.error("Error fetching growth stage by ID: ", error?.message || error);
+        throw new Error("Failed to fetch growth stage by ID");
     }
 };
 
@@ -57,4 +79,4 @@ const saveGrowthStage = async (growthStageDetails) => {
 };
 
 // Export the service functions to use in the controllers
-module.exports = { getAllGrowthStages, saveGrowthStage };
+module.exports = { getAllGrowthStages, getGrowthStageById, saveGrowthStage };

@@ -121,7 +121,7 @@ const fetchAllPlants = async (req, res) => {
         let { category, growth_cycle: growthCycle, growth_habit: growthHabit,
             ideal_season: idealSeason, purpose, limit, page, sort_by: sortBy, sort_order: sortOrder } = req.sanitizedQuery;
         const DEFAULT_LIMIT = 10, MAX_LIMIT = 100, DEFAULT_PAGE = 1 ; // Default pagination values
-        const SORT_PARAMS = ["name", "createdAt"], DEFAULT_SORT_BY = "createdAt", DEFAULT_SORT_ORDER = "asc"; // Default sorting values 
+        const SORT_PARAMS = ["name", "created_at"], DEFAULT_SORT_BY = "created_at", DEFAULT_SORT_ORDER = "asc"; // Default sorting values 
         /** 
          * Validations: Pagination
          *
@@ -146,7 +146,7 @@ const fetchAllPlants = async (req, res) => {
          * Validations: Sorting
          *
          * If sortBy and sortOrder are provided, use them to sort results else use default values
-         * sortBy: Field to sort by (default is createdAt)
+         * sortBy: Field to sort by (default is created_at)
          * sortOrder: Order to sort by (default is asc)
          * Ensure sortBy is one of the allowed fields and sortOrder is either asc or desc
          *

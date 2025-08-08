@@ -16,7 +16,7 @@
 const { Router } = require("express");
 // const { growthStageValidator } = require("../middlewares/growth-stage-middleware");
 // const { validationErrorHandler } = require("../middlewares/error-middleware");
-const { createGrowthStage, fetchAllGrowthStages } = require("../controllers/growth-stage-controller");
+const { createGrowthStage, fetchAllGrowthStages, fetchGrowthStageById } = require("../controllers/growth-stage-controller");
 
 // Initialize the router
 const routes = Router();
@@ -24,6 +24,7 @@ const routes = Router();
 // Define the growth stage routes
 routes.post("/", createGrowthStage);
 routes.get("/", fetchAllGrowthStages);
+routes.get("/:growth_stage_id", fetchGrowthStageById);
 
 // Export the routes for use in the main application
 module.exports = routes;

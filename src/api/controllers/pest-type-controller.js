@@ -1,5 +1,6 @@
 // src/api/controllers/pest-type-controller.js
 
+// Custom module imports
 const { pestTypeService } = require("../services/pest-type-service");
 
 const service = pestTypeService();
@@ -31,10 +32,43 @@ const fetchAllPestTypes = async (_req, res) => {
     }
 };
 
+const patchUpdatePestTypeById = async (req, res) => {
+    // Props that can be updated
+    const patchUpdateFields = ["description"];
+
+    // Get ID of pest type from req params
+    const pestTypeId = req.params["pest_type_id"];
+    if (!pestTypeId) return res.status(400).json({ message: "pest_type_id is required" });
+
+    // Get body params from req body
+    const body = req.body;
+    if (!body) return res.status(400).json({ message: "Required body" });
+    const bodyParams = Object.keys(body);
+    if (!bodyParams.length || !bodyParams.some(param => patchUpdateFields.includes(param))) return res.status(400).json({ messsage: "No details to update" });
+
+    // Destructure to get fields to be updated
+    const { description } = body;
+    
+    // Add provided field values for update (if any)
+    let pestTypeDetails = {};
+    if (description) pestTypeDetails.description = description;
+
+    // Try to update details
+    try {
+        const pestType = await service.update(pestTypeId, pestTypeDetails);
+        if (!pestType) res.status(404).json({ data: null, message: "Pest type not found" });
+        return res.status(200).json({ data: pestType, message: "Updated pest type details successfully" });
+    } catch (error) {
+        console.error("Failed to patch update pest type details: ", error?.message || error);
+        return res.status(500).json({ message: error.message });
+    }
+};
+
 const pestTypeController = () => {
     return {
         create: createPestType,
         fetchAll: fetchAllPestTypes,
+        patchUpdate: patchUpdatePestTypeById,
     };
 };
 

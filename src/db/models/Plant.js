@@ -89,17 +89,14 @@ const Plant = sequelize.define('Plant', {
     },
     growthCycle: {
         type: DataTypes.ENUM(Object.values(PLANT_GROWTH_CYCLE)), // Use constants
-        field: 'growth_cycle', // Use snake_case for database field
         allowNull: false, // Required field
     },
     growthHabit: {
         type: DataTypes.ENUM(Object.values(PLANT_GROWTH_HABIT)), // Use constants
-        field: 'growth_habit', // Use snake_case for database field
         allowNull: false, // Required field
     },
     idealSeason: {
         type: DataTypes.ENUM(Object.values(SEASON)), // Use constants
-        field: 'ideal_season', // Use snake_case for database field
         allowNull: false, // Required field
     },
     purpose: {
@@ -108,24 +105,20 @@ const Plant = sequelize.define('Plant', {
     },
     commonNames: {
         type: DataTypes.ARRAY(DataTypes.STRING),
-        field: 'common_names', // Use snake_case for database field
         defaultValue: [], // Default to an empty array if no value is provided
     },
     commonPests: {
         type: DataTypes.ARRAY(DataTypes.STRING),
-        field: 'common_pests', // Use snake_case for database field
         allowNull: true, // Optional field
         defaultValue: [], // Default to an empty array if no value is provided
     },
     compatiblePlants: {
         type: DataTypes.ARRAY(DataTypes.STRING),
-        field: 'compatible_plants', // Use snake_case for database field
         allowNull: true, // Optional field
         defaultValue: [], // Default to an empty array if no value is provided
     },
     growthStages: {
         type: DataTypes.ARRAY(DataTypes.STRING),
-        field: 'growth_stages', // Use snake_case for database field
         // Custom validation to ensure growth_stages is an array of allowed growth stages
         validate: {
             isValidGrowthStages(value) {
@@ -145,17 +138,14 @@ const Plant = sequelize.define('Plant', {
     },
     recommendedFertilizers: {
         type: DataTypes.ARRAY(DataTypes.STRING),
-        field: 'recommended_fertilizers', // Use snake_case for database field
         defaultValue: [], // Default to an empty array if no value is provided
     },
     regionCompatibility: {
         type: DataTypes.ARRAY(DataTypes.STRING),
-        field: 'region_compatibility', // Use snake_case for database field
         defaultValue: [], // Default to an empty array if no value is provided
     },
     scientificName: {
         type: DataTypes.STRING(50), // Limit to 50 characters
-        field: 'scientific_name', // Use snake_case for database field
         unique: true, // Ensure scientific names are unique
         allowNull: true, // Optional field
     },
@@ -163,13 +153,14 @@ const Plant = sequelize.define('Plant', {
         type: DataTypes.ARRAY(DataTypes.STRING),
         defaultValue: [], // Default to an empty array if no value is provided
     },
-}, {
+}, {    
     timestamps: true,
     tableName: 'plants', // Set table name
+    underscored: true, // Use snake_case for database fields
 });
 
 // Synchronize the model with the database
-Plant.sync({ alter: true })
+Plant.sync()
     .then(() => console.log('Plant model synchronized with the database'))
     .catch(error => console.error('Error synchronizing Plant model:', error));
     

@@ -38,7 +38,7 @@ routes.all("/", (req, res, next) => {
 });
 routes.post("/", validator.create(), validationErrorHandler, createPlant);
 routes.get("/", validator.get(), validationErrorHandler, fetchAllPlants);
-routes.all("/:plantId", (req, res, next) => {
+routes.all("/:plant_id", (req, res, next) => {
     if (!["GET", "DELETE", "PATCH"].includes(req.method)) {
         console.warn(`Method ${req.method} not allowed on /plants`);
         // Handle unsupported methods
@@ -46,9 +46,9 @@ routes.all("/:plantId", (req, res, next) => {
     }
     next();
 });
-routes.get("/:plantId", validator.id(), validationErrorHandler, fetchPlantById);
-routes.patch("/:plantId", validator.id(), validator.patchOne(), validationErrorHandler, updatePlantDetailsById);
-routes.delete("/:plantId", validator.id(), validationErrorHandler, deletePlantById);
+routes.get("/:plant_id", validator.id(), validationErrorHandler, fetchPlantById);
+routes.patch("/:plant_id", validator.id(), validator.patchOne(), validationErrorHandler, updatePlantDetailsById);
+routes.delete("/:plant_id", validator.id(), validationErrorHandler, deletePlantById);
 
 
 // Export the routes for use in the main application

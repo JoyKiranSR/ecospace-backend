@@ -39,14 +39,14 @@ let createGrowthStageValidator = [
      * min_days: number
      * 
      * Allowed values for fields:
-     * name: SOIL_DRAINAGE
+     * name: PLANT_GROWTH_STAGE
      */
 
     // Required fields
     body("name")
         .isString().withMessage("name must be a string").bail()
         .trim().toLowerCase()
-        .isIn(toArrayOfVals(PLANT_GROWTH_STAGE)).withMessage(`growth stage must be one of ${toArrayOfVals(PLANT_GROWTH_STAGE, true)}`),
+        .isIn(toArrayOfVals(PLANT_GROWTH_STAGE)).withMessage(`name must be one of ${toArrayOfVals(PLANT_GROWTH_STAGE, true)}`),
 
     body("order")
         .trim()

@@ -12,12 +12,12 @@
  * 
  * @requires ../../utils/common
  * @requires ../services/growth-stage-service
- * @exports { createGrowthStage, fetchAllGrowthStages, fetchGrowthStageById }
+ * @exports { createGrowthStage, fetchAllGrowthStages, fetchGrowthStageById, updateGrowthStageDetailsById }
  */
 
 // Custom module imports
 const { toSnakeCaseKeys } = require("../../utils/common");
-const { getAllGrowthStages, getGrowthStageById, saveGrowthStage } = require("../services/growth-stage-service");
+const { getAllGrowthStages, getGrowthStageById, saveGrowthStage, updateGrowthStageDetails } = require("../services/growth-stage-service");
 
 /**
  * @function createGrowthStage
@@ -86,7 +86,7 @@ const fetchAllGrowthStages = async (req, res) => {
 
 /**
  * @function fetchGrowthStageById
- * @get /growth_stages/:growth_stage_id
+ * @get /growth-stages/:growth_stage_id
  *
  * @description Handles fetching a growth stage by its ID.
  * This function extracts the growth stage ID from the request parameters, calls the growth stage service
@@ -117,5 +117,53 @@ const fetchGrowthStageById = async (req, res) => {
     }
 };
 
+/**
+ * @function updateGrowthStageDetailsById
+ * @patch /growth-stages/:growth_stage_id
+ *
+ * @description Handles the patch update of growth stage details by its ID.
+ * It checks and updates the details of the growth stage in the database and returns its details.
+ * If the growth stage is not found, it returns a 404 status code with an error message.
+ *
+ * @param {Object} req - The request object containing the growth stage details in the body.
+ * @param {Object} res - The response object used to send the response back to the client.
+ * @return {Object} - Returns a JSON response with the updated growth stage details and a success message if successful,
+ * or null if no growth stage found for the given ID or an error message with a 500 status code if the updation fails.
+ */
+const updateGrowthStageDetailsById = async (req, res) => {
+    // Allowed body params for the update
+    const updateGrowthStageParams = ["description", "max_days", "min_days"];
+    
+    // Get growth stage id from req params
+    const growthStageId = req.params["growth_stage_id"];
+    if (!growthStageId) return res.status(400).json({ message: "Required ID of the growth stage" });
+
+    // Get body params
+    const body = req.body;
+    if (!body) return res.status(400).json({ message: "Required body" });
+    const bodyParams = Object.keys(body);
+    if (bodyParams.length === 0 || !bodyParams.some(param => updateGrowthStageParams.includes(param))) return res.status(400).json({ message: "No details to update" });
+    const { description, max_days: maxDays, min_days: minDays } = req.body;
+
+    console.debug("Body received for update:", body);
+    console.debug("Path param growth_stage_id received for update:", growthStageId);
+    let growthStageDetails = {};
+
+    // Pass the details to be updated
+    if (description) growthStageDetails.description = description;
+    if (maxDays) growthStageDetails.maxDays = maxDays;
+    if (minDays) growthStageDetails.minDays = minDays;
+
+    // Try to update growth stage details
+    try {
+        const growthStage = await updateGrowthStageDetails(growthStageId, growthStageDetails);
+        if (!growthStage) return res.status(404).json({ message: "Growth stage not found" });
+        return res.status(200).json({ data: toSnakeCaseKeys(growthStage), message: "Updated successfully" });
+    } catch (error) {
+        console.error("Error updating growth stage by ID:", error);
+        return res.status(500).json({ message: error.message });
+    }
+};
+
 // Export the controller handler functions to use in the routes
-module.exports = { createGrowthStage, fetchAllGrowthStages, fetchGrowthStageById };
+module.exports = { createGrowthStage, fetchAllGrowthStages, fetchGrowthStageById, updateGrowthStageDetailsById };

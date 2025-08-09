@@ -17,9 +17,10 @@
 const express = require("express");
 
 // Custom module imports
+const growthStageRoutes = require("./api/routes/growth-stage-route");
+const pestTypeRoutes = require("./api/routes/pest-type-route"); 
 const plantRoutes = require("./api/routes/plant-route");
 const soilRoutes = require("./api/routes/soil-route");
-const growthStageRoutes = require("./api/routes/growth-stage-route");
 
 // Initialize the Express application
 const app = express();
@@ -28,9 +29,13 @@ const app = express();
 app.use(express.json());
 
 // Middleware to parse various ecospace service routes
+// Routes to handle and manage resources operating on master tables
+app.use("/growth-stages", growthStageRoutes); // GrowthStage-related routes
+app.use("/pest-types", pestTypeRoutes); // PestType-related routes
+
+// Routes to handle and manage resources operating on feature tables
 app.use("/plants", plantRoutes); // Plant-related routes
 app.use("/soils", soilRoutes); // Soil-related routes
-app.use("/growth-stages", growthStageRoutes); // GrowthStage-related routes
 app.get("/", (_req, res) => res.status(200).send("Welcome to Ecospace backend"));
 
 // Export the app for use in other modules

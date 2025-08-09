@@ -27,33 +27,61 @@ const { toArrayOfVals } = require("../../utils/common");
  * 
  * @type {ValidationChain[]}
  */
-const createGrowthStageValidator = [
+let createGrowthStageValidator = [
     /**
-   * Validations: Required fields
-   * name: string
-   * order: number
-   * 
-   * Validations: Optional fields
-   * description: string
-   * max_days: number
-   * min_days: number
-   * 
-   * Allowed values for fields:
-   * name: SOIL_DRAINAGE
-   */
+     * Validations: Required fields
+     * name: string
+     * order: number
+     * 
+     * Validations: Optional fields
+     * description: string
+     * max_days: number
+     * min_days: number
+     * 
+     * Allowed values for fields:
+     * name: SOIL_DRAINAGE
+     */
 
-  // Required fields
+    // Required fields
     body("name")
-      .isString().withMessage("name must be a string").bail()
-      .trim().toLowerCase()
-      .isIn(toArrayOfVals(PLANT_GROWTH_STAGE)).withMessage(`growth stage must be one of ${toArrayOfVals(PLANT_GROWTH_STAGE, true)}`),
+        .isString().withMessage("name must be a string").bail()
+        .trim().toLowerCase()
+        .isIn(toArrayOfVals(PLANT_GROWTH_STAGE)).withMessage(`growth stage must be one of ${toArrayOfVals(PLANT_GROWTH_STAGE, true)}`),
 
     body("order")
         .trim()
         .isInt({ min: 1 }).withMessage("order must be a natural number").bail()
         .toInt(),
+];
 
-    // Optional fields
+/**
+ * @constant idValidator
+ * 
+ * @description Validation rules for growth stage ID.
+ * It checks that the growth_stage_id is a required path parameter and is a valid UUID v4.
+ * 
+ * @type {ValidationChain[]}
+ */
+const idValidator = [
+    /**
+     * Validations: Required path parameter
+     * 
+     * growth_stage_id: string (UUID)
+     */
+    param("growth_stage_id")
+        .exists().withMessage("growth_stage_id is required").bail()
+        .isUUID(4).withMessage("growth_stage_id must be a valid UUID v4")
+        .trim()
+];
+
+const updateGrowthStageValidator = [
+    /**
+     * Validations: fields
+     * description: string
+     * max_days: number
+     * min_days: number
+     */
+
     body("description")
         .optional()
         .trim()
@@ -85,25 +113,8 @@ const createGrowthStageValidator = [
         .toInt(),
 ];
 
-/**
- * @constant idValidator
- * 
- * @description Validation rules for growth stage ID.
- * It checks that the growth_stage_id is a required path parameter and is a valid UUID v4.
- * 
- * @type {ValidationChain[]}
- */
-const idValidator = [
-    /**
-     * Validations: Required path parameter
-     * 
-     * growth_stage_id: string (UUID)
-     */
-    param("growth_stage_id")
-        .exists().withMessage("growth_stage_id is required").bail()
-        .isUUID(4).withMessage("growth_stage_id must be a valid UUID v4")
-        .trim()
-];
+// Add optional fields to create validator
+createGrowthStageValidator = [ ...createGrowthStageValidator, ...updateGrowthStageValidator ]; // this adds optional fields
 
 const growthStageValidator = () => {
     return {
@@ -127,6 +138,8 @@ const growthStageValidator = () => {
          * @returns {ValidationChain[]} - An array of validation chains for the growth stage ID.
          */
         id: () => idValidator,
+
+        update: () => updateGrowthStageValidator,
     }
 };
 

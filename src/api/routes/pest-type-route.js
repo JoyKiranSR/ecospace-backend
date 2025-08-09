@@ -11,6 +11,7 @@ const controller = pestTypeController(); // Creates a controller to handle route
 
 // Add route endpoints
 route.post("/",  validator.create, validationErrorHandler, controller.create);
+route.get("/", controller.fetchAll);
 
 // Export routes to map to application
 module.exports = route;

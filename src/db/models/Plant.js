@@ -156,7 +156,7 @@ const Plant = sequelize.define('Plant', {
 }, {    
     timestamps: true,
     tableName: 'plants', // Set table name
-    underscored: true, // // Use snake_case for database fields
+    underscored: true, // Use snake_case for database fields
 });
 
 // Synchronize the model with the database

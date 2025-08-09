@@ -21,9 +21,20 @@ const createPestType = async (req, res) => {
     }
 };
 
+const fetchAllPestTypes = async (_req, res) => {
+    try {
+        const pestTypes = await service.getAll();
+        return res.status(200).json({ data: pestTypes, message: "Fetched all pest types successfully" });
+    } catch (error) {
+        console.error("Failed to fetch all pest types: ", error?.message || error);
+        return res.status(500).json({ message: error.message });
+    }
+};
+
 const pestTypeController = () => {
     return {
         create: createPestType,
+        fetchAll: fetchAllPestTypes,
     };
 };
 

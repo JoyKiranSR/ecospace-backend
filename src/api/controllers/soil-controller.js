@@ -88,6 +88,19 @@ const deleteSoilById = async (req, res) => {
     }
 }
 
+/**
+ * @function fetchAllSoils
+ * @get /soils
+ *
+ * @description Handles the retrieval of all soils from the database.
+ * It fetches all soils and returns them in a JSON response with a success message.
+ * If there are no soils, it returns an empty array.
+ *
+ * @param {Object} req - The request object containing query parameters for pagination and sorting.
+ * @param {Object} res - The response object used to send the response back to the client.
+ * @return {Object} - Returns a JSON response with the list of soils, pagination metadata, and a success message.
+ * If an error occurs, it returns a 500 status code with an error message.
+ */
 const fetchAllSoils = async (req, res) => {
     // Extract pagination, sorting, and filters from the request query
     let { drainage, limit, nutrient_level: nutrientLevel, organic_matter_level: organicMatterLevel,
@@ -119,7 +132,7 @@ const fetchAllSoils = async (req, res) => {
      * Validations: Sorting
      *
      * If sortBy and sortOrder are provided, use them to sort results else use default values
-     * sortBy: Field to sort by (default is createdAt)
+     * sortBy: Field to sort by (default is created_at)
      * sortOrder: Order to sort by (default is asc)
      * Ensure sortBy is one of the allowed fields and sortOrder is either asc or desc
      *
@@ -208,14 +221,17 @@ const updateSoilDetailsById = async (req, res) => {
     // Soil detail params that can be allowed to update
     const updateSoilDetailparams = [ "color", "description", "name", "ph_max", "ph_min"];
     let soilDetails = {};
-    if (!req.params["soil_id"]) return res.status(400).json({ message: "Required ID of the soil" });
-    if (!req.body) return res.status(400).json({ message: "Required body" });
-
+    
+    // Get soil ID from req params
     const soilId = req.params["soil_id"];
+    if (!soilId) return res.status(400).json({ message: "Required ID of the soil" });
+    
+    // Get body params for updation
     const body = req.body;
-
+    if (!req.body) return res.status(400).json({ message: "Required body" });
+    const bodyParams = Object.keys(body);
     // Check valid params for update
-    if (!Object.keys(req.body).every(param => updateSoilDetailparams.includes(param))) return res.status(400).json({ message: "No details to update" });
+    if (bodyParams.length === 0 || !bodyParams.some(param => updateSoilDetailparams.includes(param))) return res.status(400).json({ message: "No details to update" });
     console.debug("Body received for update:", body);
     console.debug("Path param soil_id received for update:", soilId);
 

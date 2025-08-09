@@ -1,5 +1,6 @@
 // src/api/services/pest-type-service.js
 
+// Custom module imports
 const PestType = require("../../db/models/PestType");
 
 const getAllPestTypes = async () => {
@@ -24,10 +25,22 @@ const savePestType = async (pestTypeDetails) => {
     }
 };
 
+const updatePestTypeDetails = async (pestTypeId, pestTypeDetails) => {
+    // Try to update pest type details
+    try {
+        const [ updatedCount, updatedRows ] = await PestType.update(pestTypeDetails, { where: { id: pestTypeId }, returning: true }); // returns updated result
+        return updatedCount ? updatedRows[0].toJSON() : null; // Return converted plain object if updated, else return null
+    } catch (error) {
+        console.error("Error updating pest type details: ", error?.message || error);
+        throw new Error("Failed to update pest type details");
+    }
+};
+
 const pestTypeService = () => {
     return {
         getAll: getAllPestTypes,
         save: savePestType,
+        update: updatePestTypeDetails,
     }
 };
 

@@ -14,6 +14,17 @@ const getAllPestTypes = async () => {
     } 
 };
 
+const removePestType = async (pestTypeId) => {
+    // Try to remove from DB
+    try {
+        const [ updatedCount ] = await PestType.update({ isActive: false }, { where: { id: pestTypeId } });
+        return updatedCount ?? null;
+    } catch (error) {
+        console.error("Error removing pest type: ", error?.message || error);
+        throw new Error("Failed to remove pest type");
+    }
+};
+
 const savePestType = async (pestTypeDetails) => {
     // Try to save to DB
     try {
@@ -39,6 +50,7 @@ const updatePestTypeDetails = async (pestTypeId, pestTypeDetails) => {
 const pestTypeService = () => {
     return {
         getAll: getAllPestTypes,
+        remove: removePestType,
         save: savePestType,
         update: updatePestTypeDetails,
     }

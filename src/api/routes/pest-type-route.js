@@ -17,6 +17,7 @@ const controller = pestTypeController(); // Creates a controller to handle route
 route.post("/",  validator.create, validationErrorHandler, controller.create);
 route.get("/", controller.fetchAll);
 route.patch("/:pest_type_id", validator.id, validator.patchOne, validationErrorHandler, controller.patchUpdate);
+route.delete("/:pest_type_id", validator.id, validationErrorHandler, controller.delete);
 
 // Export routes to map to application
 module.exports = route;

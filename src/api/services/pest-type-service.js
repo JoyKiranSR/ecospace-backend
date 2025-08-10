@@ -3,10 +3,10 @@
 // Custom module imports
 const PestType = require("../../db/models/PestType");
 
-const getAllPestTypes = async () => {
+const getAllPestTypes = async (isIncludeInActive = false) => {
     // Try to fetch all types
     try {
-        const pestTypes = await PestType.findAll();
+        const pestTypes = await PestType.findAll(isIncludeInActive ? {} : { where: { isActive: true } });
         return pestTypes.map(pestType => pestType.toJSON()); // Convert to plain objects
     } catch (error) {
         console.error("Error fetching all pest types: ", error?.message || error);

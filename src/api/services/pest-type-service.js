@@ -6,7 +6,7 @@ const PestType = require("../../db/models/PestType");
 const getAllPestTypes = async (isIncludeInActive = false) => {
     // Try to fetch all types
     try {
-        const pestTypes = await PestType.findAll(isIncludeInActive ? {} : { where: { isActive: true } });
+        const pestTypes = await PestType.findAll(isIncludeInActive ? { paranoid: false } : {}); // Excludes soft deleted records as paronoid true
         return pestTypes.map(pestType => pestType.toJSON()); // Convert to plain objects
     } catch (error) {
         console.error("Error fetching all pest types: ", error?.message || error);
@@ -17,8 +17,8 @@ const getAllPestTypes = async (isIncludeInActive = false) => {
 const removePestType = async (pestTypeId) => {
     // Try to remove from DB
     try {
-        const [ updatedCount ] = await PestType.update({ isActive: false }, { where: { id: pestTypeId } });
-        return updatedCount ?? null;
+        const deletedCount = await PestType.destroy({ where: { id: pestTypeId } }); // Soft deletes as schema includes paronoid true
+        return deletedCount ?? null;
     } catch (error) {
         console.error("Error removing pest type: ", error?.message || error);
         throw new Error("Failed to remove pest type");

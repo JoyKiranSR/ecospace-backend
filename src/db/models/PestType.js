@@ -22,12 +22,8 @@ const PestType = sequelize.define("PestType", {
         type: DataTypes.TEXT,
         allowNull: true,
     },
-    isActive: {
-        type: DataTypes.BOOLEAN,
-        allowNull: false,
-        defaultValue: true,
-    }
 }, {
+    paranoid: true, // Adds soft delete
     tableName: "pest_types", // Custom table name
     timestamps: true, // Adds createdAt and updatedAt
     underscored: true, // Snakecasing conversion

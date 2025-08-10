@@ -40,7 +40,7 @@ const deletePestTypeById = async (req, res) => {
 
 const fetchAllPestTypes = async (_req, res) => {
     try {
-        const pestTypes = await service.getAll();
+        const pestTypes = await service.getAll(true); // Includes inactive types as well
         return res.status(200).json({ data: pestTypes, message: "Fetched all pest types successfully" });
     } catch (error) {
         console.error("Failed to fetch all pest types: ", error.message);

@@ -21,6 +21,11 @@ const PestType = sequelize.define("PestType", {
     description: {
         type: DataTypes.TEXT,
         allowNull: true,
+    },
+    isActive: {
+        type: DataTypes.BOOLEAN,
+        allowNull: false,
+        defaultValue: true,
     }
 }, {
     tableName: "pest_types", // Custom table name

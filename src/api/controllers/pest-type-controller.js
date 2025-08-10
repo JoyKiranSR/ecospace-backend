@@ -17,8 +17,24 @@ const createPestType = async (req, res) => {
         const pestType = await service.save(pestTypeDetails);
         return res.status(201).json({ data: pestType, message: "Pest type created successfully"});
     } catch (error) {
-        console.error("Failed to create pest type: ", error?.message || error);
+        console.error("Failed to create pest type: ", error.message);
         return res.status(500).json({ message: error.message })
+    }
+};
+
+const deletePestTypeById = async (req, res) => {
+    // Get ID of pest type from req params
+    const pestTypeId = req.params["pest_type_id"];
+    if (!pestTypeId) return res.status(400).json({ message: "pest_type_id is required" });
+
+    // Try to delete the pest type
+    try {
+        const pestType = await service.remove(pestTypeId);
+        if (!pestType) return res.status(404).json({ message: "Pest type not found" });
+        return res.status(204).send();
+    } catch (error) {
+        console.error("Failed to delete pest type: ", error.message);
+        return res.status(500).json({ message: error.message });
     }
 };
 
@@ -27,7 +43,7 @@ const fetchAllPestTypes = async (_req, res) => {
         const pestTypes = await service.getAll();
         return res.status(200).json({ data: pestTypes, message: "Fetched all pest types successfully" });
     } catch (error) {
-        console.error("Failed to fetch all pest types: ", error?.message || error);
+        console.error("Failed to fetch all pest types: ", error.message);
         return res.status(500).json({ message: error.message });
     }
 };
@@ -59,7 +75,7 @@ const patchUpdatePestTypeById = async (req, res) => {
         if (!pestType) res.status(404).json({ data: null, message: "Pest type not found" });
         return res.status(200).json({ data: pestType, message: "Updated pest type details successfully" });
     } catch (error) {
-        console.error("Failed to patch update pest type details: ", error?.message || error);
+        console.error("Failed to patch update pest type details: ", error.message);
         return res.status(500).json({ message: error.message });
     }
 };
@@ -67,6 +83,7 @@ const patchUpdatePestTypeById = async (req, res) => {
 const pestTypeController = () => {
     return {
         create: createPestType,
+        delete: deletePestTypeById,
         fetchAll: fetchAllPestTypes,
         patchUpdate: patchUpdatePestTypeById,
     };

@@ -1,5 +1,19 @@
 // src/api/routes/pest-type-route.js
 
+/**
+ * @module pest-type-route
+ * Ecospace PestType Routes
+ * 
+ * @description This module defines the routes for pest type-related endpoints in the Ecospace backend.
+ * It includes routes for creating a pest type, fetching all pest types, updating a pest type, and deleting a pest type.
+ * It uses the Express Router and applies validation middleware to ensure that the requests are properly formatted.
+ * 
+ * @requires express
+ * @requires pest-type-controller
+ * @requires pest-type-middleware
+ * @requires error-middleware
+ */
+
 // Core module imports
 const { Router } = require("express");
 

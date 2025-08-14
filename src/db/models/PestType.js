@@ -1,5 +1,18 @@
 // src/db/models/PestType.js
 
+/**
+ * @module PestType
+ * Ecospace PestType Model
+ * 
+ * @description This module defines the PestType model for the Ecospace backend using Sequelize ORM.
+ * It includes fields for pest type characteristics such as name and description.
+ * It also includes validation rules for these fields to ensure data integrity.
+ * 
+ * @requires sequelize
+ * @requires ../../constants/pest-constant
+ * @exports PestType
+ */
+
 // Core module imports
 const { DataTypes } = require("sequelize");
 
@@ -7,6 +20,24 @@ const { DataTypes } = require("sequelize");
 const sequelize = require("../../db/index");
 const { PEST_TYPE } = require("../../constants/pest-constant");
 
+/**
+ * @constant PestType
+ * @type {import("sequelize").Model}
+ * @description PestType model definition for the Ecospace backend using Sequelize ORM.
+ * 
+ * @property {string} id - Unique identifier for the pest type.
+ * @property {string} name - Name of the pest type.
+ * @property {string} description - Description of the pest type.
+ * @returns {import("sequelize").Model} - Returns the PestType model instance.
+ * 
+ * @example
+ * // Example usage:
+ * const PestType = require('./models/PestType');
+ * const newPestType = await PestType.create({
+ *   name: 'caterpillar',
+ *   description: 'A common pest that causes damage to crops.',
+ * });
+ */
 const PestType = sequelize.define("PestType", {
     id: {
         type: DataTypes.UUID,

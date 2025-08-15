@@ -14,7 +14,7 @@
  * @constant PATHOGEN_TYPE
  * 
  * @description Defines the types of pathogens that can cause diseases.
- * It includes many different types of pathogens, such as bacteria, fungi, insects, viruses, protozoa, etc 
+ * It includes many different types of pathogens, such as bacteria, fungus, insects, viruses, protozoa, etc 
  * This categorization helps in understanding the different types of pathogens that can cause diseases.
  * It is useful for agriculture, gardening, and ecological studies.
  * This constant is used to classify pathogens, which can affect plant health and agricultural practices.
@@ -27,7 +27,7 @@
  */
 const PATHOGEN_TYPE = Object.freeze({
     BACTERIA: "bacteria",
-    FUNGI: "fungi",
+    FUNGUS: "fungus",
     INSECT: "insect",
     NEMATODE: "nematode",
     OOMYCETE: "oomycete",
@@ -37,4 +37,4 @@ const PATHOGEN_TYPE = Object.freeze({
 });
 
 // Export the PATHOGEN_TYPE constant
-export { PATHOGEN_TYPE };
+module.exports = { PATHOGEN_TYPE };

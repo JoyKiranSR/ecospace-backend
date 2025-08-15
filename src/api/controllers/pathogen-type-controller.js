@@ -12,6 +12,7 @@
  */
 
 // Custom module imports
+const { toSnakeCaseKeys } = require("../../utils/common");
 const { getAllPathogenTypes, getPathogenTypeById, removePathogenType,
     savePathogenType, updatePathogenTypeDetails } = require("../services/pathogen-type-service");
 
@@ -49,7 +50,7 @@ const createPathogenType = async (req, res) => {
     // Try to create a new pathogen type
     try {
         const pathogenType = await savePathogenType(pathogenTypeDetails);
-        return res.status(201).json({ data: pathogenType, message: "Pathogen type created successfully" });
+        return res.status(201).json({ data: toSnakeCaseKeys(pathogenType), message: "Pathogen type created successfully" });
     } catch (error) {
         console.error("Error creating pathogen type: ", error.message);
         return res.status(500).json({ message: error.message });
@@ -102,7 +103,7 @@ const fetchAllPathogenTypes = async (_req, res) => {
     // Try to fetch all pathogen types
     try {
         const pathogenTypes = await getAllPathogenTypes();
-        return res.status(200).json({ data: pathogenTypes, message: "Retrieved all pathogen types successfully" });
+        return res.status(200).json({ data: toSnakeCaseKeys(pathogenTypes), message: "Retrieved all pathogen types successfully" });
     } catch (error) {
         console.error("Error fetching all pathogen types: ", error.message);
         return res.status(500).json({ message: error.message });
@@ -126,7 +127,6 @@ const fetchAllPathogenTypes = async (_req, res) => {
 const fetchPathogenTypeById = async (req, res) => {
     // Get pathogen type ID from request parameters
     const pathogenTypeId = req.params["pathogen_type_id"];
-    console.log("INCOMING", pathogenTypeId)
     if (!pathogenTypeId) return res.status(400).json({ message: "Required pathogen type ID" });
 
     // Try to fetch pathogen type
@@ -135,7 +135,7 @@ const fetchPathogenTypeById = async (req, res) => {
         if (!pathogenType) {
             return res.status(404).json({ data: null, message: "Pathogen type not found" });
         }
-        return res.status(200).json({ data: pathogenType, message: "Retrieved pathogen type successfully" });
+        return res.status(200).json({ data: toSnakeCaseKeys(pathogenType), message: "Retrieved pathogen type successfully" });
     } catch (error) {
         console.error("Error fetching pathogen type by ID: ", error.message);
         return res.status(500).json({ message: error.message });
@@ -189,7 +189,7 @@ const updatePathogenType = async (req, res) => {
     try {
         const pathogenType = await updatePathogenTypeDetails(pathogenTypeId, pathogenTypeDetails);
         if (!pathogenType) return res.status(404).json({ message: "Pathogen type not found" });
-        return res.status(200).json({ data: pathogenType, message: "Updated pathogen type successfully" });
+        return res.status(200).json({ data: toSnakeCaseKeys(pathogenType), message: "Updated pathogen type successfully" });
     } catch (error) {
         console.error("Error updating pathogen type by ID: ", error.message);
         return res.status(500).json({ message: error.message });

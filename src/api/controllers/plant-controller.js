@@ -68,13 +68,13 @@ const createPlant = async (req, res) => {
  * If the deletion logic is not implemented, it returns a 202 status code with a message.
  *
  * @param {Object} req - The request object containing the plant ID in the path parameters.
- * @param {string} req.params.plantId - The ID of the plant to be deleted.
+ * @param {string} req.params.plant_id - The ID of the plant to be deleted.
  * @param {Object} res - The response object used to send the response back to the client.
  * @returns {Object} - Returns a JSON response with the deleted plant details and a success message if successful,
  * or an error message with a 500 status code if the deletion fails.
  */
 const deletePlantById = async (req, res) => {
-    const { plantId } = req.params;
+    const plantId = req.params["plant_id"];
     if (!plantId) return res.status(400).json({ message: "Required ID of the plant" });
     try {
         const plant = await getPlantById(plantId);
@@ -96,7 +96,8 @@ const deletePlantById = async (req, res) => {
 }
 /**
  * @function fetchAllPlants
- * @get
+ * @get /plants
+ *
  * @description Handles the retrieval of all plants from the database.
  * It fetches all plants and returns them in a JSON response with a success message.
  * If there are no plants, it returns an empty array.
@@ -121,7 +122,7 @@ const fetchAllPlants = async (req, res) => {
         let { category, growth_cycle: growthCycle, growth_habit: growthHabit,
             ideal_season: idealSeason, purpose, limit, page, sort_by: sortBy, sort_order: sortOrder } = req.sanitizedQuery;
         const DEFAULT_LIMIT = 10, MAX_LIMIT = 100, DEFAULT_PAGE = 1 ; // Default pagination values
-        const SORT_PARAMS = ["name", "createdAt"], DEFAULT_SORT_BY = "createdAt", DEFAULT_SORT_ORDER = "asc"; // Default sorting values 
+        const SORT_PARAMS = ["name", "created_at"], DEFAULT_SORT_BY = "created_at", DEFAULT_SORT_ORDER = "asc"; // Default sorting values 
         /** 
          * Validations: Pagination
          *
@@ -146,7 +147,7 @@ const fetchAllPlants = async (req, res) => {
          * Validations: Sorting
          *
          * If sortBy and sortOrder are provided, use them to sort results else use default values
-         * sortBy: Field to sort by (default is createdAt)
+         * sortBy: Field to sort by (default is created_at)
          * sortOrder: Order to sort by (default is asc)
          * Ensure sortBy is one of the allowed fields and sortOrder is either asc or desc
          *
@@ -184,18 +185,20 @@ const fetchAllPlants = async (req, res) => {
 
 /**
  * @function fetchPlantById
- * @get
+ * @get /plants/plant_id
+ *
  * @description Handles the retrieval of a plant by its ID.
  * It checks if the plant exists in the database and returns its details.
  * If the plant is not found, it returns a 404 status code with an error message.
  *
  * @param {Object} req - The request object containing the plant ID in the path parameters.
+ * @param {string} req.params.plant_id - The ID of the plant to be fetched.
  * @param {Object} res - The response object used to send the response back to the client.
  * @return {Object} - Returns a JSON response with the plant details or an error message.
  */
 const fetchPlantById = async (req, res) => {
     // Get plant id from path params
-    const plantId = req.params.plantId;
+    const plantId = req.params["plant_id"];
     // Get plant details by its id
     try {
         const plant = await getPlantById(plantId);
@@ -209,12 +212,14 @@ const fetchPlantById = async (req, res) => {
 
 /**
  * @function updatePlantDetailsById
- * @patch
+ * @patch /plants/plant_id
+ *
  * @description Handles the patch update of plant details by its ID.
  * It checks and updates the details of the plant in the database and returns its details.
  * If the plant is not found, it returns a 404 status code with an error message.
  *
  * @param {Object} req - The request object containing the plant details in the body.
+ * @param {string} req.params.plant_id - The ID of the plant which needs to be updated.
  * @param {Object} res - The response object used to send the response back to the client.
  * @return {Object} - Returns a JSON response with the updated plant details and a success message if successful,
  * or null if no plant found for the given ID or an error message with a 500 status code if the updation fails.
@@ -223,19 +228,22 @@ const updatePlantDetailsById = async (req, res) => {
     const updatePlantDetailParams = ["common_names", "common_pests", "compatible_plants", "growth_stages",
         "recommended_fertilizers", "region_compatibility", "scientific_name", "tags"];
     let plantDetails = {};
-    if (!req.params.plantId) return res.status(400).json({ message: "Required ID of the plant" });
-    if (!req.body) return res.status(400).json({ message: "Required body" });
-    // Check valid params for patch update
-    if (!Object.keys(req.body).every(param => updatePlantDetailParams.includes(param))) return res.status(400).json({ message: "No details to update" });
-    console.debug("Body received for update:", req.body);
-    console.debug("Path param plantId received for update:", req.params.plantId);
-
     // Get plantId from request params
-    const { plantId } = req.params;
+    const plantId = req.params["plant_id"];
+    if (!plantId) return res.status(400).json({ message: "Required ID of the plant" });
+
+    const body = req.body;
+    if (!body) return res.status(400).json({ message: "Required body" });
+    // Check valid params for patch update
+    const bodyParams = Object.keys(req.body);
+    if (bodyParams.length === 0 || !bodyParams.some(param => updatePlantDetailParams.includes(param))) return res.status(400).json({ message: "No details to update" });
+    console.debug("Body received for update:", body);
+    console.debug("Path param plantId received for update:", plantId);
+
     // Destructure the plant details from the request body
     const { common_names: commonNames, common_pests: commonPests, compatible_plants: compatiblePlants,
         growth_stages: growthStages, recommended_fertilizers: recommendedFertilizers,
-        region_compatibility: regionCompatibility, scientific_name: scientificName, tags } = req.body;
+        region_compatibility: regionCompatibility, scientific_name: scientificName, tags } = body;
     
     // Pass details to be updated of the plant to an object
     if (commonNames) plantDetails.commonNames = commonNames;

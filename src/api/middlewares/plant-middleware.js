@@ -151,7 +151,7 @@ const createPlantValidator = [
  * @constant idValidator
  * 
  * @description Validation rules for plant ID.
- * It checks that the plantId is a required path parameter, is an integer, and is greater than 0.
+ * It checks that the plantId is a required path parameter, is a valid UUID
  * 
  * @type {ValidationChain[]}
  */
@@ -159,11 +159,11 @@ const idValidator = [
     /**
      * Validations: Required path parameter
      * 
-     * plantId: integer
+     * plant_id: UUID
      */
-    param("plantId")
-      .exists().withMessage("plantId is required").bail()
-      .isUUID(4).withMessage("plantId must be a valid UUID v4")
+    param("plant_id")
+      .exists().withMessage("plant_id is required").bail()
+      .isUUID(4).withMessage("plant_id must be a valid UUID")
       .trim()
 ];
 

@@ -128,7 +128,7 @@ const Soil = sequelize.define("Soil", {
 });
 
 // Synchronize the model with the database
-Soil.sync({ alter: true })
+Soil.sync()
     .then(() => console.log("Soil model synchronized with the database"))
     .catch(error => console.error("Error synchronizing Soil model:", error?.message || error));
 
